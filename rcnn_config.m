@@ -43,6 +43,7 @@ EXP_DIR = './cachedir';
 % Set to false if you do not want to use a GPU.
 USE_GPU = true;
 
+FEAT_OPTS = [];
 % Load local overrides if rccn_config_local.m exists
 % See rcnn_config_local.example.m for an example
 if exist('rcnn_config_local.m')
@@ -94,6 +95,7 @@ conf = cv(conf, 'use_gpu', USE_GPU);
 conf = cv(conf, 'exp_dir', EXP_DIR);
 conf = cv(conf, 'sub_dir', '');
 conf = cv(conf, 'cache_dir', fullfile(conf.exp_dir, conf.sub_dir, '/'));
+conf = cv(conf, 'feat_opts', FEAT_OPTS)
 
 mkdir_if_missing(conf.cache_dir);
 

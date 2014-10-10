@@ -17,7 +17,7 @@ imdb_train = imdb_from_voc(VOCdevkit, 'trainval', '2007');
 imdb_test = imdb_from_voc(VOCdevkit, 'test', '2007');
 
 [rcnn_model, rcnn_k_fold_model] = ...
-    rcnn_train(imdb_train, ...
+    rcnn_train(imdb_train, feat_opts, ...
       'layer',        layer, ...
       'k_folds',      k_folds, ...
       'cache_name',   cache_name, ...
@@ -26,9 +26,9 @@ imdb_test = imdb_from_voc(VOCdevkit, 'test', '2007');
       'crop_padding', crop_padding);
 
 if k_folds > 0
-  res_train = rcnn_test(rcnn_k_fold_model, imdb_train);
+  res_train = rcnn_test(rcnn_k_fold_model, imdb_train, feat_opts);
 else
   res_train = [];
 end
-
-res_test = rcnn_test(rcnn_model, imdb_test);
+%TODO
+res_test = rcnn_test(rcnn_model, imdb_test, feat_opts);

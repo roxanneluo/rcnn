@@ -1,4 +1,6 @@
-function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, cache_name)
+function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, cache_name, top_net)
+% cnn is the top_net (from pool5 to entropy) if top_net. 
+% Otherwise, it's the normal net
 % AUTORIGHTS
 % ---------------------------------------------------------
 % Copyright (c) 2014, Ross Girshick
@@ -11,6 +13,9 @@ function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, ca
 
 if ~exist('cache_name', 'var') || isempty(cache_name)
   cache_name = 'none';
+end
+if ~exist('top_net', 'var')
+  top_net = false;
 end
 
 %  model = 
@@ -43,17 +48,23 @@ assert(exist(cnn_binary_file, 'file') ~= 0);
 assert(exist(cnn_definition_file, 'file') ~= 0);
 cnn.binary_file = cnn_binary_file;
 cnn.definition_file = cnn_definition_file;
-cnn.batch_size = 256;
 cnn.init_key = -1;
-cnn.input_size = 227;
-% load the ilsvrc image mean
-data_mean_file = './external/caffe/matlab/caffe/ilsvrc_2012_mean.mat';
-assert(exist(data_mean_file, 'file') ~= 0);
-ld = load(data_mean_file);
-image_mean = ld.image_mean; clear ld;
-off = floor((size(image_mean,1) - cnn.input_size)/2)+1;
-image_mean = image_mean(off:off+cnn.input_size-1, off:off+cnn.input_size-1, :);
-cnn.image_mean = image_mean;
+if ~top_net
+  cnn.input_size = 227;
+  cnn.batch_size = 256;
+  % load the ilsvrc image mean
+  data_mean_file = './external/caffe/matlab/caffe/ilsvrc_2012_mean.mat';
+  assert(exist(data_mean_file, 'file') ~= 0);
+  ld = load(data_mean_file);
+  image_mean = ld.image_mean; clear ld;
+  off = floor((size(image_mean,1) - cnn.input_size)/2)+1;
+  image_mean = image_mean(off:off+cnn.input_size-1, off:off+cnn.input_size-1, :);
+  cnn.image_mean = image_mean;
+else 
+% init cnn_top (from pool5 to entropy)
+%cnn.input_size = 227;
+  cnn.batch_size = 1;
+end
 
 % init empty detectors
 detectors.W = [];

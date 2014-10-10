@@ -49,7 +49,8 @@ ip.addParamValue('cache_name', ...
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
 
-opts.net_def_file = './model-defs/rcnn_batch_256_output_fc7.prototxt';
+%opts.net_def_file = './model-defs/rcnn_batch_256_output_fc7.prototxt';
+opts.net_def_file = './model-defs/pascal_top_entropy.prototxt';
 
 conf = rcnn_config('sub_dir', imdb.name);
 
@@ -66,7 +67,8 @@ fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 
 % ------------------------------------------------------------------------
 % Create a new rcnn model
-rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file, opts.cache_name);
+rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file,...
+    opts.cache_name, true);
 rcnn_model = rcnn_load_model(rcnn_model, conf.use_gpu);
 rcnn_model.detectors.crop_mode = opts.crop_mode;
 rcnn_model.detectors.crop_padding = opts.crop_padding;
@@ -78,6 +80,7 @@ rcnn_model.classes = imdb.classes;
 opts.feat_norm_mean = rcnn_feature_stats(imdb, opts.layer, rcnn_model);
 fprintf('average norm = %.3f\n', opts.feat_norm_mean);
 rcnn_model.training_opts = opts;
+rcnn_model.feat_opts = conf.feat_opts;
 % ------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------
@@ -98,7 +101,9 @@ caches = {};
 for i = imdb.class_ids
   fprintf('%14s has %6d positive instances\n', ...
       imdb.classes{i}, size(X_pos{i},1));
-  X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
+  %X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
+  %X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
+  X_pos{i} = get_feature(X_pos{i}, rcnn_model);
   X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
   caches{i} = init_cache(X_pos{i}, keys_pos{i});
 end
@@ -227,7 +232,9 @@ if isempty(d.feat)
   return;
 end
 
-d.feat = rcnn_pool5_to_fcX(d.feat, opts.layer, rcnn_model);
+%d.feat = rcnn_pool5_to_fcX(d.feat, opts.layer, rcnn_model);
+%d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
+d.feat = get_feature(d.feat, rcnn_model);
 d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
 
 neg_ovr_thresh = 0.3;
