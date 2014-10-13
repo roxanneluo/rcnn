@@ -1,106 +1,100 @@
-function cell_feat_opts = create_feat_opts()
+function cell_feat_opts = create_feat_opts(proc)
 % feat_opt=
 %   layer:
-%   b_or_d: 'blob'/'diff'
-%   w_or_r: 'weight'/'response'
+%   d: true for diff / false for blob
+%   w: true for 'weight'/ false for 'response'
 %   combine: @func_handle
 %   combine_name: 'name_of_the_func'
 
-test_num_layer = 2;
-num_feat_cell = 2*(test_num_layer*2+4);
-cell_feat_opts = cell(num_feat_cell,1);
-w_or_rs = {'response', 'weight'};
-b_or_ds = {'diff', 'blob'};
+test_num_layer = 3;
+cell_feat_opts = {};
+w_or_rs = {false};
+b_or_ds = {true, false};
 combine = @l2;
 combine_name = 'l2';
+dim = 1;
 
-cnt = 0;
-for wr = 1:2
+for wr = 1:length(w_or_rs)
   w_or_r = w_or_rs{wr};
-  if str_cmp(w_or_r, 'response')
+  if ~ w_or_r
     start_layer = 5;
   else
     start_layer = 6;
+  end
   % pure grad x each layer
-  for i=start_layer:start_layer+test_num_layer-1
-    cnt = cnt+1;
-    cell_feat_opts{cnt} = struct('layer', i, 'b_or_d', 'diff', ...
-        'w_or_r', w_or_r, 'combine', combine, 'combine_name', combine_name);
-  end
-  % grad+act x each layer
-  for i=start_layer:start_layer+test_num_layer-1
-    cnt = cnt+1;
-    cell_feat_opts{cnt} = struct('layer', i, 'b_or_d', {'blob', 'diff'},...
-        'w_or_r', {'response', w_or_r}, 'combine', combine, 'combine_name', combine_name);
-  end
-  % fc7 + (grad/act x pool5/fc6)
-  for layer=start_layer:start_layer+test_num_layer-2
-    for bd = 1:2
-      b_or_d = b_or_ds{bd};
-      cnt = cnt+1;
-      cell_feat_opts{cnt} = struct('layer', {7, layer}, 'b_or_d', {'blob', b_or_d},...
-          'w_or_r', w_or_r, 'combine', combine, 'combine_name', combine_name);
+  switch(proc)
+  case 0
+    feat_opts = struct('layer', 7, 'd', false, ...
+        'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+    cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
+  case 1
+    for i=start_layer:start_layer+test_num_layer-1
+      feat_opts = struct('layer', i, 'd', true, ...
+          'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
     end
+  case 2
+    % grad+act x each layer
+    for i=start_layer:start_layer+test_num_layer-1
+      feat_opts = struct('layer', i, 'd', {false, true},...
+          'w', {false, w_or_r}, 'combine', combine, 'combine_name', combine_name);
+      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
+    end
+  case 3
+    % fc7 + (grad/act x pool5/fc6)
+    for layer=start_layer:start_layer+test_num_layer-2
+      for bd = 1:2
+        b_or_d = b_or_ds{bd};
+        feat_opts = struct('layer', {7, layer}, 'd', {false, b_or_d},...
+            'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+        cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
+      end
+    end
+ otherwise
+   feat_opts = struct('layer', {7, start_layer, start_layer+1}, ...
+      'd', {false, true, true}, 'w', {false, w_or_r, w_or_r},...
+      'combine', combine, 'combine_name', combine_name); 
+   cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
   end
-  %cnt = cnt+1;
-  %cell_feat_opts{cnt} = struct('layer', {7, 5, 6}, ...
-   %   'b_or_d', {'blob', 'diff', 'diff'}, 'w_or_r', {'response', w_or_r, w_or_r},...
-   %   'combine', combine);
 end
 cell_feat_opts
 
 % combine fun
-% input: actually a 2-dim matrix mxn
-% output: a combined vector along dim 1 of size 1xn
+% input: actually a 3-dim [combine_along_dim, combine_across_dim, num]
+% output: a combined vector along dim 2 of size [combine_across_dim, num]
 % -----------------------------------------------------------------------------
 function feat = l2(diff)
 % -----------------------------------------------------------------------------
-diff = squeeze(diff);
-if size(diff, 2) ~= 1
-  feat = sqrt(sum(diff.*diff, 1));
-else
-  feat = abs(diff)';
-end
+feat = sqrt(sum(diff.*diff, 1));
 feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = l1(diff)
 % -----------------------------------------------------------------------------
-diff = abs(squeeze(diff));
-if size(diff, 2) ~= 1
-  feat = sum(diff, 1);
-else 
-  feat = diff';
-end
+feat = sum(abs(diff), 1);
 feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = max_abs(diff)
 % -----------------------------------------------------------------------------
-diff = abs(squeeze(diff));
-if size(diff, 2) ~= 1
-  feat = max(diff, 1);
-else
-  feat = diff';
-end
+feat = max(abs(diff), 1);
 feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = max_pool(diff)
 % -----------------------------------------------------------------------------
-diff = squeeze(diff);
-if size(diff, 2) ~= 1
-  feat = max(diff, 1);
-else 
-  feat = diff';
-end
+feat = max(diff, 1);
 feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
-% input: a row vector
+% input: a cube [1, combine_across_dim, num]
+% output: a matrix without 1
 function feat = normalize(feat)
 % -----------------------------------------------------------------------------
-s = sum(feat);
-if s ~= 0
-  feat = feat/s;
-end
+[along, across, num] = size(feat);
+assert(along == 1);
+feat = reshape(feat, [across, num]);
+err = 1e-30;
+s = sqrt(sum(feat.*feat,1));
+s(abs(s) < err) = 1;
+%feat = feat./(ones(size(feat,1), 1)*s);

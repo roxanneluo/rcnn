@@ -1,5 +1,5 @@
-function train_all()
-cell_feat_opts = create_feat_opts_test();
+function [res_test, res_train] = train_all(proc)
+cell_feat_opts = create_feat_opts(proc);
 for i=1:length(cell_feat_opts)
   global my_test_feat_opts
   my_test_feat_opts = cell_feat_opts{i};

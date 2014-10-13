@@ -31,5 +31,5 @@ if exist('use_gpu', 'var') && ~use_gpu
 else
   caffe('set_mode_gpu');
 end
-caffe('set_phase_test');
+caffe('set_phase_train');
 rcnn_model.cnn.layers = caffe('get_weights');

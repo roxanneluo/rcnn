@@ -1,8 +1,16 @@
 input: "pool5"
-input_dim: 1
+input_dim: 2048
 input_dim: 1
 input_dim: 1
 input_dim: 9216
+
+input: "padding"
+input_dim: 1
+input_dim: 1
+input_dim: 1
+input_dim: 1
+
+force_backward: true
 
 layers {
   bottom: "pool5"
@@ -105,6 +113,7 @@ layers {
 }
 layers {
   bottom: "prob"
+  bottom: "padding"
   top: "entropy"
   name: "entropy"
   type: ENTROPY_LOSS

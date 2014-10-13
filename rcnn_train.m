@@ -77,10 +77,10 @@ rcnn_model.classes = imdb.classes;
 
 % ------------------------------------------------------------------------
 % Get the average norm of the features
+rcnn_model.feat_opts = conf.feat_opts;
 opts.feat_norm_mean = rcnn_feature_stats(imdb, opts.layer, rcnn_model);
 fprintf('average norm = %.3f\n', opts.feat_norm_mean);
 rcnn_model.training_opts = opts;
-rcnn_model.feat_opts = conf.feat_opts;
 % ------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------
@@ -236,6 +236,7 @@ end
 %d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
 d.feat = get_feature(d.feat, rcnn_model);
 d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
+sprintf('%d features in image %d', size(d.feat, 1), ind)
 
 neg_ovr_thresh = 0.3;
 

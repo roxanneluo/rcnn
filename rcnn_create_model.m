@@ -49,22 +49,22 @@ assert(exist(cnn_definition_file, 'file') ~= 0);
 cnn.binary_file = cnn_binary_file;
 cnn.definition_file = cnn_definition_file;
 cnn.init_key = -1;
+cnn.input_size = 227;
 if ~top_net
-  cnn.input_size = 227;
   cnn.batch_size = 256;
-  % load the ilsvrc image mean
-  data_mean_file = './external/caffe/matlab/caffe/ilsvrc_2012_mean.mat';
-  assert(exist(data_mean_file, 'file') ~= 0);
-  ld = load(data_mean_file);
-  image_mean = ld.image_mean; clear ld;
-  off = floor((size(image_mean,1) - cnn.input_size)/2)+1;
-  image_mean = image_mean(off:off+cnn.input_size-1, off:off+cnn.input_size-1, :);
-  cnn.image_mean = image_mean;
 else 
 % init cnn_top (from pool5 to entropy)
 %cnn.input_size = 227;
-  cnn.batch_size = 1;
+  cnn.batch_size = 2048; 
 end
+% load the ilsvrc image mean
+data_mean_file = './external/caffe/matlab/caffe/ilsvrc_2012_mean.mat';
+assert(exist(data_mean_file, 'file') ~= 0);
+ld = load(data_mean_file);
+image_mean = ld.image_mean; clear ld;
+off = floor((size(image_mean,1) - cnn.input_size)/2)+1;
+image_mean = image_mean(off:off+cnn.input_size-1, off:off+cnn.input_size-1, :);
+cnn.image_mean = image_mean;
 
 % init empty detectors
 detectors.W = [];

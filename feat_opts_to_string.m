@@ -5,6 +5,17 @@ for i = 2:length(feat_opts)
 end
 
 function str = feat_opt_to_string(feat_opt)
-str = sprintf('l%d_%s_%s_%s', feat_opt.layer, feat_opt.b_or_d(1),...
-    feat_opt.w_or_r(1), feat_opt.combine_name);
+if feat_opt.d
+  bd = 'd';
+else 
+  bd = 'b';
+end
+
+if feat_opt.w
+  wr = 'w';
+else
+  wr = 'r';
+end
+
+str = sprintf('l%d_%s_%s_%s', feat_opt.layer, bd, wr, feat_opt.combine_name);
 
