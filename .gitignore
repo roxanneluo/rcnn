@@ -10,3 +10,5 @@ data/window_files
 rcnn_config_local.m
 cachedir/*
 external/caffe
+*.swo
+*.swp

@@ -33,11 +33,13 @@ ip.addOptional('crop_padding', 16, @isscalar);
 ip.addOptional('net_file', ...
     './data/caffe_nets/finetune_voc_2007_trainval_iter_70k', ...
     @isstr);
+%TODO
 ip.addOptional('cache_name', ...
     'v1_finetune_voc_2007_trainval_iter_70000', @isstr);
 
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
+%TODO
 opts.net_def_file = './model-defs/rcnn_batch_256_output_pool5.prototxt';
 
 image_ids = imdb.image_ids;
@@ -46,6 +48,7 @@ if opts.end == 0
 end
 
 % Where to save feature cache
+%TODO
 opts.output_dir = ['./feat_cache/' opts.cache_name '/' imdb.name '/'];
 mkdir_if_missing(opts.output_dir);
 

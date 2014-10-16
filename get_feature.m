@@ -5,7 +5,7 @@ dims = get_feat_dims(feat_opts);
 feat_dim = sum(dims);
 
 pool5 = pool5';
-[pool5_dim, total_num] = size(pool5)
+[pool5_dim, total_num] = size(pool5);
 pool5 = reshape(pool5, [pool5_dim, 1, 1, total_num]);
 
 batch_size = rcnn_model.cnn.batch_size;
@@ -32,7 +32,7 @@ for i=1:num_batches
     caffe_func = [caffe_func,'_backward'];
   end
   caffe(caffe_func, {batches{i}; padding});
-  sprintf('%s for batch%d of num%d', caffe_func, i, batch_size-padding)
+  fprintf('%s for batch%d of num%d', caffe_func, i, batch_size-padding);
 
   dim_start = 1;
   for j = 1:length(feat_opts)
@@ -43,8 +43,8 @@ for i=1:num_batches
   end
 end
 
-'size_feature'
-size(feature)
+assert(size(size(feature), 2) == 2);
+fprintf('size feature [%d, %d]\n', size(feature,1), size(feature,2));
 
 % -----------------------------------------------------------------------------
 function dims = get_feat_dims(feat_opts)
@@ -72,6 +72,7 @@ function part_dim = get_feat_part_dim(feat_opt)
     assert(false);
   end
 
+
 % -----------------------------------------------------------------------------
 % return a single part of the whole feature as specified by feat_opt
 function feat_part = get_feature_part(feat_opt, valid_num)
@@ -89,6 +90,8 @@ else
   res = caffe('get_response', layer, feat_opt.d);
   diff = squeeze(res.blobs{1}(:,:,:,1:valid_num));
   [dim, num] = size(diff);
+  fprintf('layer name: %s, dim:%d, num:%d', res.layer_name, dim, num);
+  assert(dim > 1);
   if feat_opt.layer == 5 && feat_opt.d
     diff = reshape(diff, [36, 256, num]);
   else
@@ -96,8 +99,8 @@ else
   end
 end
 % diff is [combine_along_dim, combine_across_dim, num]
-feat_part = feat_opt.combine(diff);
-size(feat_part)
+feat_part = combine(diff, feat_opt.combine, false); %TODO
+%size(feat_part)
 % feat so far is [combine_across_dim, num]
 feat_part = feat_part';
 % feat is [num, combine_across_dim]
@@ -128,7 +131,6 @@ end
 % for diff use the layer before relu
 function layer = get_layer_id(feat_opt)
 layer = feat_opt.layer;
-diff = feat_opt.d;
 assert(layer >= 5 && layer <= 10);
 switch layer
   case 5
@@ -136,10 +138,10 @@ switch layer
   case 6
     layer = 1;
   case 7
-    layer = 4;
+    layer = 3;
   otherwise
-    layer = layer - 2;
+    layer = layer - 4;
 end
-if layer == 6 || layer == 7
+if feat_opt.d && (feat_opt.layer == 6 || feat_opt.layer == 7)
   layer = layer - 1;
 end

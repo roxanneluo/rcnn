@@ -28,12 +28,15 @@ else
 end
 
 try
+  fprintf('======================try load boxes======================\n');
   aboxes = cell(num_classes, 1);
   for i = 1:num_classes
+    fprintf([conf.cache_dir rcnn_model.classes{i} '_boxes_' imdb.name suffix]);
     load([conf.cache_dir rcnn_model.classes{i} '_boxes_' imdb.name suffix]);
     aboxes{i} = boxes;
   end
 catch
+  fprintf('======================catch load boxes======================\n');
   aboxes = cell(num_classes, 1);
   box_inds = cell(num_classes, 1);
   for i = 1:num_classes
@@ -111,7 +114,7 @@ catch
     clear boxes inds;
   end
 end
-
+fprintf('======================out of catch======================\n');
 % ------------------------------------------------------------------------
 % Peform AP evaluation
 % ------------------------------------------------------------------------

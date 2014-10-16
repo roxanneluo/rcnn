@@ -1,5 +1,5 @@
-function [res_test, res_train] = train_all(proc)
-cell_feat_opts = create_feat_opts(proc);
+function [res_test, res_train] = train_all(proc, layer)
+cell_feat_opts = create_feat_opts(proc, layer);
 for i=1:length(cell_feat_opts)
   global my_test_feat_opts
   my_test_feat_opts = cell_feat_opts{i};
@@ -9,4 +9,5 @@ for i=1:length(cell_feat_opts)
   res_test
   sprintf('[RESULT] train\n')
   res_train
+  caffe('reset');
 end

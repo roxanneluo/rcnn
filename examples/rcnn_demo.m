@@ -33,7 +33,11 @@ switch demo_choice
     rcnn_model_file = './data/rcnn_models/ilsvrc2013/rcnn_model.mat';
     im = imread('./examples/images/fish-bike.jpg');
   otherwise
-    error('unknown demo ''%s'' [valid options: ''PASCAL'' or ''ILSVRC13'']', demo_choice);
+    pascal_rcnn_model_file = './data/rcnn_models/voc_2012/rcnn_model_finetuned.mat';
+    pascal_rcnn_model = rcnn_load_model(pascal_rcnn_model_file);
+    % Example using the PASCAL VOC 2007 fine-tuned detectors (20 classes)
+    rcnn_model_file = ['./cachedir/',demo_choice,'/voc_2007_trainval/rcnn_model.mat'];
+    im = imread('./examples/images/000084.jpg');
 end
 
 if ~exist(rcnn_model_file, 'file')
@@ -57,6 +61,9 @@ pause;
 % when timing detection).
 fprintf('Initializing R-CNN model (this might take a little while)\n');
 rcnn_model = rcnn_load_model(rcnn_model_file, use_gpu);
+if ~strcmp(demo_choice, 'PASCAL') && ~strcmp(demo_choice, 'ILSVRC13')
+  rcnn_model.cnn.image_mean = pascal_rcnn_model.cnn.image_mean;
+end
 fprintf('done\n');
 
 th = tic;
@@ -81,6 +88,8 @@ for i = 1:length(ord)
   title(sprintf('det #%d: %s score = %.3f', ...
       i, cls, score));
   drawnow;
+  filename = sprintf('%s_demo.jpg', demo_choice)
+  saveas(gcf, filename);
   pause;
 end
 

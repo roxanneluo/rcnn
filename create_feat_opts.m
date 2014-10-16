@@ -1,4 +1,4 @@
-function cell_feat_opts = create_feat_opts(proc)
+function cell_feat_opts = create_feat_opts(proc, layer)
 % feat_opt=
 %   layer:
 %   d: true for diff / false for blob
@@ -9,7 +9,7 @@ function cell_feat_opts = create_feat_opts(proc)
 test_num_layer = 3;
 cell_feat_opts = {};
 w_or_rs = {false};
-b_or_ds = {true, false};
+b_or_ds = {false};
 combine = @l2;
 combine_name = 'l2';
 dim = 1;
@@ -28,27 +28,22 @@ for wr = 1:length(w_or_rs)
         'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
     cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
   case 1
-    for i=start_layer:start_layer+test_num_layer-1
-      feat_opts = struct('layer', i, 'd', true, ...
-          'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
-      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
-    end
+%    for i=start_layer:start_layer+test_num_layer-1
+    feat_opts = struct('layer', layer, 'd', true, ...
+        'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+    cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
   case 2
     % grad+act x each layer
-    for i=start_layer:start_layer+test_num_layer-1
-      feat_opts = struct('layer', i, 'd', {false, true},...
-          'w', {false, w_or_r}, 'combine', combine, 'combine_name', combine_name);
-      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
-    end
+    feat_opts = struct('layer', layer, 'd', {false, true},...
+        'w', {false, w_or_r}, 'combine', combine, 'combine_name', combine_name);
+    cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
   case 3
     % fc7 + (grad/act x pool5/fc6)
-    for layer=start_layer:start_layer+test_num_layer-2
-      for bd = 1:2
-        b_or_d = b_or_ds{bd};
-        feat_opts = struct('layer', {7, layer}, 'd', {false, b_or_d},...
-            'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
-        cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
-      end
+    for bd = 1:length(b_or_ds)
+      b_or_d = b_or_ds{bd};
+      feat_opts = struct('layer', {7, layer}, 'd', {false, b_or_d},...
+          'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
     end
  otherwise
    feat_opts = struct('layer', {7, start_layer, start_layer+1}, ...
@@ -66,35 +61,19 @@ cell_feat_opts
 function feat = l2(diff)
 % -----------------------------------------------------------------------------
 feat = sqrt(sum(diff.*diff, 1));
-feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = l1(diff)
 % -----------------------------------------------------------------------------
 feat = sum(abs(diff), 1);
-feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = max_abs(diff)
 % -----------------------------------------------------------------------------
 feat = max(abs(diff), 1);
-feat = normalize(feat);
 
 % -----------------------------------------------------------------------------
 function feat = max_pool(diff)
 % -----------------------------------------------------------------------------
 feat = max(diff, 1);
-feat = normalize(feat);
 
-% -----------------------------------------------------------------------------
-% input: a cube [1, combine_across_dim, num]
-% output: a matrix without 1
-function feat = normalize(feat)
-% -----------------------------------------------------------------------------
-[along, across, num] = size(feat);
-assert(along == 1);
-feat = reshape(feat, [across, num]);
-err = 1e-30;
-s = sqrt(sum(feat.*feat,1));
-s(abs(s) < err) = 1;
-%feat = feat./(ones(size(feat,1), 1)*s);

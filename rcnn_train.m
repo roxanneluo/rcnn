@@ -50,7 +50,7 @@ ip.parse(imdb, varargin{:});
 opts = ip.Results;
 
 %opts.net_def_file = './model-defs/rcnn_batch_256_output_fc7.prototxt';
-opts.net_def_file = './model-defs/pascal_top_entropy.prototxt';
+opts.net_def_file = './model-defs/pascal_top_entropy_easy.prototxt';
 
 conf = rcnn_config('sub_dir', imdb.name);
 

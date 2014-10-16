@@ -19,6 +19,7 @@ function rcnn_model = rcnn_load_model(rcnn_model_or_file, use_gpu)
 if isstr(rcnn_model_or_file)
   assert(exist(rcnn_model_or_file, 'file') ~= 0);
   ld = load(rcnn_model_or_file);
+  ld
   rcnn_model = ld.rcnn_model; clear ld;
 else
   rcnn_model = rcnn_model_or_file;
