@@ -30,6 +30,8 @@ catch
   image_ids = image_ids(randperm(length(image_ids), num_images));
 
   ns = [];
+  dims = rcnn_model.dims;
+  num_feat = length(rcnn_model.feat_opts);
   for i = 1:length(image_ids)
     tic_toc_print('feature stats: %d/%d\n', i, length(image_ids));
 
@@ -38,12 +40,19 @@ catch
     X = d.feat(randperm(size(d.feat,1), min(boxes_per_image, size(d.feat,1))), :);
     %X = rcnn_pool5_to_fcX(X, layer, rcnn_model);
     X = get_feature(X, rcnn_model);
-
-    ns = cat(1, ns, sqrt(sum(X.^2, 2)));
+    
+    part_norms = zeros(size(X, 1), num_feat);
+    dim_start = 1;
+    for j = 1:num_feat
+      dim_end = dim_start + dims(j)-1;
+      part_norms(:, j) = sqrt(sum(X(:, dim_start:dim_end).*X(:, dim_start:dim_end), 2));
+      dim_start = dim_end+1;
+    end
+    ns = cat(1, ns, part_norms);
   end
 
   mean_norm = mean(ns);
-  assert(~isnan(mean_norm) && mean_norm > 0);
+  assert(~any(isnan(mean_norm)) && all(mean_norm > 0));
   stdd = std(ns);
   save(save_file, 'mean_norm', 'stdd');
 

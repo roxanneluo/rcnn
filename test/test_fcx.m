@@ -5,6 +5,9 @@ my_test_feat_opts = struct('layer', {7, 5},'d', {false, false}, ...
 sprintf(feat_opts_to_string(my_test_feat_opts))
 conf = rcnn_config('sub_dir', 'haha');
 model.feat_opts = conf.feat_opts;
+model.dims = get_feat_dims(model.feat_opts);
+model.feat_dim = sum(model.dims);
+
 pool5 = single(rand(num, 9216));
 feat = get_feature(single(pool5), model);
 fcx1 = rcnn_pool5_to_fcX(pool5, 7-5, model);
@@ -28,11 +31,5 @@ fcx(1:10)
 'feat'
 feat(1:10)
 
-IX = find(diff >= err);
-size(IX)
-'diff in feat'
-feat(IX(1:10))
-'diff in fcx'
-fcx(IX(1:10))
 
-
+whos

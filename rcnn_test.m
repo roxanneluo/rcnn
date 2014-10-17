@@ -71,7 +71,7 @@ catch
       %d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
       %d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
       d.feat = get_feature(d.feat, rcnn_model);
-      d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
+      d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean, rcnn_model);
       zs = bsxfun(@plus, d.feat*rcnn_model.detectors(f).W, rcnn_model.detectors(f).B);
 
       for j = 1:num_classes

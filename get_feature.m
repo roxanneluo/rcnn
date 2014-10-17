@@ -1,8 +1,8 @@
 function feature = get_feature(pool5, rcnn_model)
 feat_opts = rcnn_model.feat_opts;
 num_feat = length(feat_opts);
-dims = get_feat_dims(feat_opts);
-feat_dim = sum(dims);
+dims = rcnn_model.dims;
+feat_dim = rcnn_model.feat_dim;
 
 pool5 = pool5';
 [pool5_dim, total_num] = size(pool5);
@@ -12,7 +12,7 @@ batch_size = rcnn_model.cnn.batch_size;
 [num_batches, batches, num_padding] = get_batches(pool5, batch_size); 
 
 padding = single(zeros(1,1,1,1));
-feature = zeros(total_num, feat_dim);
+feature = single(zeros(total_num, feat_dim));
 for i=1:num_batches
   if i == num_batches
     padding(1,1,1,1) = num_padding;
@@ -46,32 +46,6 @@ end
 assert(size(size(feature), 2) == 2);
 fprintf('size feature [%d, %d]\n', size(feature,1), size(feature,2));
 
-% -----------------------------------------------------------------------------
-function dims = get_feat_dims(feat_opts)
-% -----------------------------------------------------------------------------
-dims = zeros(length(feat_opts),1);
-for i = 1:length(feat_opts)
-  dims(i) = get_feat_part_dim(feat_opts(i));
-end
-
-function part_dim = get_feat_part_dim(feat_opt)
-  switch(feat_opt.layer)
-  case 5
-    if feat_opt.d
-      part_dim = 256;
-    else 
-      part_dim = 9216;
-    end
-  case 6
-    part_dim = 4096;
-  case 7
-    part_dim = 4096;
-  case 8
-    part_dim = 21;
-  otherwise
-    assert(false);
-  end
-
 
 % -----------------------------------------------------------------------------
 % return a single part of the whole feature as specified by feat_opt
@@ -99,7 +73,7 @@ else
   end
 end
 % diff is [combine_along_dim, combine_across_dim, num]
-feat_part = combine(diff, feat_opt.combine, false); %TODO
+feat_part = combine(diff, feat_opt.combine, feat_opt.d); %TODO
 %size(feat_part)
 % feat so far is [combine_across_dim, num]
 feat_part = feat_part';

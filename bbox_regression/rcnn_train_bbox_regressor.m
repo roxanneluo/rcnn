@@ -66,8 +66,10 @@ end
 for i = 1:num_clss
   fprintf('%14s has %6d samples\n', rcnn_model.classes{i}, length(find(C == i)));
 end
-X = rcnn_pool5_to_fcX(X, opts.layer, rcnn_model);
-X = rcnn_scale_features(X, opts.feat_norm_mean);
+%TODO
+%X = rcnn_pool5_to_fcX(X, opts.layer, rcnn_model);
+X = get_feature(X, rcnn_model);
+X = rcnn_scale_features(X, opts.feat_norm_mean, rcnn_model);
 % ------------------------------------------------------------------------
 
 % use ridge regression solved by cholesky factorization

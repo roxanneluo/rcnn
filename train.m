@@ -50,7 +50,7 @@ ip.parse(imdb, varargin{:});
 opts = ip.Results;
 
 %opts.net_def_file = './model-defs/rcnn_batch_256_output_fc7.prototxt';
-opts.net_def_file = './model-defs/pascal_top_entropy.prototxt';
+opts.net_def_file = './model-defs/pascal_top_entropy_easy.prototxt';
 
 conf = rcnn_config('sub_dir', imdb.name);
 
@@ -76,10 +76,25 @@ rcnn_model.classes = imdb.classes;
 % ------------------------------------------------------------------------
 
 % ------------------------------------------------------------------------
-% Get the average norm of the features
+% Get feature dimensions
 rcnn_model.feat_opts = conf.feat_opts;
-opts.feat_norm_mean = rcnn_feature_stats(imdb, opts.layer, rcnn_model);
-fprintf('average norm = %.3f\n', opts.feat_norm_mean);
+rcnn_model.dims = get_feat_dims(rcnn_model.feat_opts);
+rcnn_model.feat_dim = sum(rcnn_model.dims);
+
+has_inner_weight = false;
+for i = 1:length(rcnn_model.feat_opts)
+  has_inner_weight = has_inner_weight ...
+    || (rcnn_model.feat_opts.w && rcnn_model.feat_opts.layer > 5);
+end
+if has_inner_weight
+  rcnn_model.cnn.batch_size = 1;
+end
+
+% ------------------------------------------------------------------------
+% Get the average norm of the features
+[opts.feat_norm_mean, stdd] = rcnn_feature_stats(imdb, opts.layer, rcnn_model);
+print_array('average norm', opts.feat_norm_mean);
+print_array('std', stdd);
 rcnn_model.training_opts = opts;
 % ------------------------------------------------------------------------
 
@@ -104,7 +119,7 @@ for i = imdb.class_ids
   %X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
   %X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
   X_pos{i} = get_feature(X_pos{i}, rcnn_model);
-  X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
+  X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean, rcnn_model);
   caches{i} = init_cache(X_pos{i}, keys_pos{i});
 end
 % ------------------------------------------------------------------------
@@ -235,7 +250,8 @@ end
 %d.feat = rcnn_pool5_to_fcX(d.feat, opts.layer, rcnn_model);
 %d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
 d.feat = get_feature(d.feat, rcnn_model);
-d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
+d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean, rcnn_model);
+sprintf('%d features in image %d', size(d.feat, 1), ind)
 
 neg_ovr_thresh = 0.3;
 
@@ -384,3 +400,11 @@ cache.pos_loss = [];
 cache.neg_loss = [];
 cache.reg_loss = [];
 cache.tot_loss = [];
+
+function print_array(name, arr)
+fprintf('%s = [', name);
+for i = 1:length(arr)
+  fprintf('%f, ', arr(i));
+end
+fprintf(']\n');
+

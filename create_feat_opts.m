@@ -39,13 +39,14 @@ for wr = 1:length(w_or_rs)
     cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
   case 3
     % fc7 + (grad/act x pool5/fc6)
-    for bd = 1:length(b_or_ds)
-      b_or_d = b_or_ds{bd};
-      feat_opts = struct('layer', {7, layer}, 'd', {false, b_or_d},...
-          'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
-      cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
-    end
- otherwise
+    feat_opts = struct('layer', {7, layer}, 'd', {false, false},...
+        'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+    cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
+   case 4
+    feat_opts = struct('layer', {7, layer}, 'd', {false, true},...
+        'w', w_or_r, 'combine', combine, 'combine_name', combine_name);
+    cell_feat_opts = cat(dim, cell_feat_opts, feat_opts);
+   otherwise
    feat_opts = struct('layer', {7, start_layer, start_layer+1}, ...
       'd', {false, true, true}, 'w', {false, w_or_r, w_or_r},...
       'combine', combine, 'combine_name', combine_name); 

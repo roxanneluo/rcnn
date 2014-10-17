@@ -48,8 +48,9 @@ catch
       continue;
     end
 
-    d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
-    d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
+    %d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
+    d.feat = get_feature(d.feat, rcnn_model);
+    d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean, rcnn_model);%TODO
 
     if feat_opts.binarize
       d.feat = single(d.feat > 0);
