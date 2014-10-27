@@ -14,9 +14,6 @@ function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, ca
 if ~exist('cache_name', 'var') || isempty(cache_name)
   cache_name = 'none';
 end
-if ~exist('top_net', 'var')
-  top_net = false;
-end
 
 %  model = 
 %    cnn: [1x1 struct]
@@ -54,7 +51,6 @@ if ~top_net
   cnn.batch_size = 256;
 else 
 % init cnn_top (from pool5 to entropy)
-%cnn.input_size = 227;
   cnn.batch_size = 2048; 
 end
 % load the ilsvrc image mean

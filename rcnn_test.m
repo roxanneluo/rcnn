@@ -57,22 +57,34 @@ catch
   else
     folds = rcnn_model.folds;
   end
-
+  
+  if rcnn_model.proj
+    eigen = load_eigen(rcnn_model);
+    if isfield(rcnn_model, 'proj_dim') ...
+      && rcnn_model.proj_dim ~= sum(get_feat_dims(rcnn_model.feat_opts))
+      eigen.eigen_val = eigen.eigen_val(1:rcnn_model.proj_dim);
+      eigen.eigen_vec = eigen.eigen_vec(:, 1:rcnn_model.proj_dim);
+    end
+  else 
+    eigen = [];
+  end
   count = 0;
   for f = 1:length(folds)
     for i = folds{f}
       count = count + 1;
       fprintf('%s: test (%s) %d/%d\n', procid(), imdb.name, count, length(image_ids));
       d = rcnn_load_cached_pool5_features(feat_opts.cache_name, ...
-          imdb.name, image_ids{i});
+          imdb.name, image_ids{i}, rcnn_model.exist_r, {'boxes', 'gt'});
+      %d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
+      %d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
+      d.feat = get_feature(d.feat, rcnn_model, imdb.name, ...
+          struct('image_id', image_ids{i}, 'IX', []), eigen);
+      d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean, rcnn_model);
+      zs = bsxfun(@plus, d.feat*rcnn_model.detectors(f).W, rcnn_model.detectors(f).B);
+
       if isempty(d.feat)
         continue;
       end
-      %d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
-      %d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
-      d.feat = get_feature(d.feat, rcnn_model);
-      d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean, rcnn_model);
-      zs = bsxfun(@plus, d.feat*rcnn_model.detectors(f).W, rcnn_model.detectors(f).B);
 
       for j = 1:num_classes
         boxes = d.boxes;

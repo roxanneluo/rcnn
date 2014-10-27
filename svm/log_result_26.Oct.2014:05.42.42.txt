@@ -1,0 +1,124 @@
+
+~~~~~~~svm_C=0.000200~~~~~~
+TRAINING		TESTING
+0.820258		0.609756
+0.814677		0.650392
+
+0.820258		0.609756
+
+~~~~~~~svm_C=0.005000~~~~~~
+TRAINING		TESTING
+0.809618		0.591997
+0.827311		0.638926
+
+0.809618		0.591997
+
+ans = 
+
+    [1x20 struct]    [1x20 struct]
+
+
+re1dtool                               refinemesh                             relieff                                reomega                                
+re_lib                                 refineSP                               reloadsys                              reorderstructure                       
+read_cell                              refline                                relop                                  reordsys                               
+readcandbdbc                           refmat2vec                             rem                                    replace_block                          
+readfields                             refmatToGeoRasterReference             remapfig                               replace_existing_data                  
+readfis                                refmatToMapRasterReference             remdemo                                replace_scopeblk                       
+readfk5                                refmatToWorldFileMatrix                remez                                  repmat                                 
+readmtx                                refmodel_dataset                       remezord                               report                                 
+readOptimHashTable                     refresh                                remoteBuild                            reportResultsCommSysGPU                
+readstdtcdata                          refreshdata                            remoteParallelFunction                 reqmanage                              
+readtree                               refreshdlg                             remotetarget                           reqmgt                                 
+real                                   refvec2mat                             remove_mpm_path                        reqmgtprivate                          
+reallog                                refvecToGeoRasterReference             removeconstantrows                     rerunhi                                
+realmax                                reg                                    removedefaultfimathpref                resample                               
+realmin                                regexp                                 removedelay                            resampledemo                           
+realmu_demo                            regexpi                                removeExtraNanSeparators               resave_mdl                             
+realp                                  regexprep                              removefimath                           rescal                                 
+realpow                                regexptranslate                        removeglobalfimathpref                 reset                                  
+realsqrt                               regionpicker                           removeHTCommnComponent                 reset_TItarget                         
+realtime                               regionprops                            removePhaseAmbiguityMSKSignalRecovery  resetdefaultfimath                     
+realtime_make_rtw_hook                 register_blk_handle                    removerows                             resetfipref                            
+realtime_one_click_hook                register_object_with_sym               removetrailzeros                       resetglobalfimath                      
+rebasecuts                             registerADCpinAssignment               render_basicaudiotoolbar               resetint                               
+rebuffer_delay                         registerCOMPpinAssignment              render_cshelpbtn                       resetplotview                          
+rec2geod                               registerECANpinAssignment              render_fdthelpmenu                     reshape                                
+receivedFullMPDUGUI                    registerECAPpinAssignment              render_fullaudiotoolbar                resi2                                  
+receivedMPDUGUI                        registerEclipseIDE                     render_gridonoffbtn                    resid                                  
+receptive_field_sizes                  registerEPWMpinAssignment              render_legendonoffbtn                  residue                                
+recessionplot                          registerEQEPpinAssignment              render_spteditmenu                     residuez                               
+reckon                                 registerI2CpinAssignment               render_sptfilemenu                     resizem                                
+rectangle                              registerIAREW                          render_spthelpmenu                     resolve_type                           
+rectangularPulse                       registerrealtimecataloglocation        render_sptinsertmenu                   resolvehost                            
+rectint                                registerSCIpinAssignment               render_sptprintbtns                    resourceLog                            
+rectpuls                               registerSPIpinAssignment               render_sptscribebtns                   respdemo                               
+rectpulse                              registerTICCS                          render_spttoolsmenu                    resppack                               
+rectwin                                registerTICCSv4                        render_sptwindowmenu                   restack                                
+recycle                                registerTICCSv5                        render_sqfilemenu                      restoredefaultpath                     
+redbluecmap                            registerWRWorkbench                    render_sqhelpmenu                      restrict                               
+redgreencmap                           registration                           render_sqprintbtns                     resultset                              
+redimfig                               regress                                render_statusbar                       ret2price                              
+redstar                                regression                             render_uimgraudiotoolbar               ret2tick                               
+reduceEBC                              regstats                               render_vqfilemenu                      rethrow                                
+reduceEBCs                             regSysInfo_TItarget                    render_vqhelpmenu                      retrievefixptsimranges                 
+reducek                                regul_fir                              render_vqprintbtns                     return                                 
+reducem                                rehash                                 render_zoombtns                        reuters                                
+reducepatch                            reig                                   render_zoommenus                       reverse_binary_operator                
+reducer_example                        reindex                                renderframe                            reverseendian                          
+reducevolume                           reinterpretcast                        renderframe2                           revertit                               
+refcurve                               release_version                        renderwebfigure                        revgeneticcode                         
+referenceEllipsoid                     releaseDVBCScopes                      renko                                  
+referenceSphere                        releaseQPSKScopes                      renumpart                              
+
+re1dtool                               refinemesh                             relieff                                reomega                                
+re_lib                                 refineSP                               reloadsys                              reorderstructure                       
+read_cell                              refline                                relop                                  reordsys                               
+readcandbdbc                           refmat2vec                             rem                                    replace_block                          
+readfields                             refmatToGeoRasterReference             remapfig                               replace_existing_data                  
+readfis                                refmatToMapRasterReference             remdemo                                replace_scopeblk                       
+readfk5                                refmatToWorldFileMatrix                remez                                  repmat                                 
+readmtx                                refmodel_dataset                       remezord                               report                                 
+readOptimHashTable                     refresh                                remoteBuild                            reportResultsCommSysGPU                
+readstdtcdata                          refreshdata                            remoteParallelFunction                 reqmanage                              
+readtree                               refreshdlg                             remotetarget                           reqmgt                                 
+real                                   refvec2mat                             remove_mpm_path                        reqmgtprivate                          
+reallog                                refvecToGeoRasterReference             removeconstantrows                     rerunhi                                
+realmax                                reg                                    removedefaultfimathpref                resample                               
+realmin                                regexp                                 removedelay                            resampledemo                           
+realmu_demo                            regexpi                                removeExtraNanSeparators               resave_mdl                             
+realp                                  regexprep                              removefimath                           rescal                                 
+realpow                                regexptranslate                        removeglobalfimathpref                 reset                                  
+realsqrt                               regionpicker                           removeHTCommnComponent                 reset_TItarget                         
+realtime                               regionprops                            removePhaseAmbiguityMSKSignalRecovery  resetdefaultfimath                     
+realtime_make_rtw_hook                 register_blk_handle                    removerows                             resetfipref                            
+realtime_one_click_hook                register_object_with_sym               removetrailzeros                       resetglobalfimath                      
+rebasecuts                             registerADCpinAssignment               render_basicaudiotoolbar               resetint                               
+rebuffer_delay                         registerCOMPpinAssignment              render_cshelpbtn                       resetplotview                          
+rec2geod                               registerECANpinAssignment              render_fdthelpmenu                     reshape                                
+receivedFullMPDUGUI                    registerECAPpinAssignment              render_fullaudiotoolbar                resi2                                  
+receivedMPDUGUI                        registerEclipseIDE                     render_gridonoffbtn                    resid                                  
+receptive_field_sizes                  registerEPWMpinAssignment              render_legendonoffbtn                  residue                                
+recessionplot                          registerEQEPpinAssignment              render_spteditmenu                     residuez                               
+reckon                                 registerI2CpinAssignment               render_sptfilemenu                     resizem                                
+rectangle                              registerIAREW                          render_spthelpmenu                     resolve_type                           
+rectangularPulse                       registerrealtimecataloglocation        render_sptinsertmenu                   resolvehost                            
+rectint                                registerSCIpinAssignment               render_sptprintbtns                    resourceLog                            
+rectpuls                               registerSPIpinAssignment               render_sptscribebtns                   respdemo                               
+rectpulse                              registerTICCS                          render_spttoolsmenu                    resppack                               
+rectwin                                registerTICCSv4                        render_sptwindowmenu                   restack                                
+recycle                                registerTICCSv5                        render_sqfilemenu                      restoredefaultpath                     
+redbluecmap                            registerWRWorkbench                    render_sqhelpmenu                      restrict                               
+redgreencmap                           registration                           render_sqprintbtns                     resultset                              
+redimfig                               regress                                render_statusbar                       ret2price                              
+redstar                                regression                             render_uimgraudiotoolbar               ret2tick                               
+reduceEBC                              regstats                               render_vqfilemenu                      rethrow                                
+reduceEBCs                             regSysInfo_TItarget                    render_vqhelpmenu                      retrievefixptsimranges                 
+reducek                                regul_fir                              render_vqprintbtns                     return                                 
+reducem                                rehash                                 render_zoombtns                        reuters                                
+reducepatch                            reig                                   render_zoommenus                       reverse_binary_operator                
+reducer_example                        reindex                                renderframe                            reverseendian                          
+reducevolume                           reinterpretcast                        renderframe2                           revertit                               
+refcurve                               release_version                        renderwebfigure                        revgeneticcode                         
+referenceEllipsoid                     releaseDVBCScopes                      renko                                  
+referenceSphere                        releaseQPSKScopes                      renumpart                              
+quit

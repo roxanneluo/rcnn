@@ -8,6 +8,8 @@ end
 
 function part_dim = get_feat_part_dim(feat_opt)
   switch(feat_opt.layer)
+  case 4
+    part_dim = 384; 
   case 5
     if feat_opt.d
       part_dim = 256;

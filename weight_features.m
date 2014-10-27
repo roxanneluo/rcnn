@@ -42,15 +42,16 @@ along_dim = ww*wh*wc;
 feat = zeros(size(boxes, 1), across_dim, 'single');
 fprintf('[%d, %d]\n', size(boxes, 1), across_dim);
 for j = 1:length(batches)
-  caffe('forward_backward', {batches{j}; padding});
+  assert(size(batches{j},4)==1);
+  caffe('forward_backward', {batches{j}});
+  %caffe('forward_backward', {batches{j}; padding});
   res = caffe('get_weight', layer, feat_opt.d);
   blob = res.blobs{1};
   blob = reshape(blob, [along_dim, across_dim, 1]);
 
   f = combine(blob, feat_opt.combine, false); % I don't normalize when caching TODO
 
-  size(f);
-  feat(curr:curr+size(f,2)-1,:) = f';
+  feat(curr:curr+size(f,1)-1,:) = f;
   curr = curr + batch_size;
 end
 fprintf('layer_name: %s, size[%d, %d]\n', res.layer_name, ...

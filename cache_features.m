@@ -38,7 +38,7 @@ ip.addOptional('cache_name', ...
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
 
-assert(size(feat_opt,1)*size(feat_opt, 2) == 1);
+assert(numel(feat_opt) == 1);
 assert(~(~feat_opt.d && feat_opt.w));
 if feat_opt.d && feat_opt.w
   batch_size = 1;
@@ -46,7 +46,9 @@ else
   batch_size = 256;
 end
 %TODO
-opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_entropy.prototxt'];
+%opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_entropy.prototxt'];
+%opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_back.prototxt'];
+opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_loss.prototxt'];
 
 
 image_ids = imdb.image_ids;
@@ -74,7 +76,7 @@ fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 % load the region of interest database
 roidb = imdb.roidb_func(imdb);
 
-rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file, false);
+rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file, opts.cache_name, false);
 rcnn_model = rcnn_load_model(rcnn_model);
 rcnn_model.detectors.crop_mode = opts.crop_mode;
 rcnn_model.detectors.crop_padding = opts.crop_padding;

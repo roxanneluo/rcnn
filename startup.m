@@ -25,4 +25,9 @@ addpath('experiments');
 addpath('imdb');
 addpath('vis/pool5-explorer');
 addpath('examples');
+
+addpath('draw');
+addpath('test');
+addpath('fuse-funcs');
+addpath('pca');
 fprintf('R-CNN startup done\n');

@@ -1,0 +1,23 @@
+===========================testing svm_C = 0.000063===========================
+
+~~~~~~~~~~~training~~~~~~~~~
+
+ans =
+
+     1
+
+===================opts.proj=0, whiten=0,pca_ratio=1.000000=================
+l7_b_r_l2+l5_d_w_l2
+EXP_DIR =
+
+./cachedir/sb_norm_w_equal_dim_svmC0.000063_l7_b_r_l2+l5_d_w_l2
+
+
+conf = 
+
+      sub_dir: 'voc_2007_trainval'
+      use_gpu: 1
+      exp_dir: './cachedir/sb_norm_w_equal_dim_svmC0.000063_l7_b_r_l2+l5_d_w_l2'
+    cache_dir: './cachedir/sb_norm_w_equal_dim_svmC0.000063_l7_b_r_l2+l5_d_w_l2/voc_2007_trainval/'
+    feat_opts: [1x2 struct]
+

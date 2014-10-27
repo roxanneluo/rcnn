@@ -3,7 +3,8 @@ function cache_weight_features(chunk, layer)
 % -------------------- CONFIG --------------------
 feat_opt = struct('layer', layer, 'd', true, ...
     'w', true, 'combine', @l2, 'combine_name', 'l2');
-cache_name = feat_opts_to_string(feat_opt);
+cache_name  = [feat_opts_to_string(feat_opt) '_sl'];
+%cache_name   = feat_opts_to_string(feat_opt);
 net_file     = './data/caffe_nets/finetune_voc_2007_trainval_iter_70k';
 crop_mode    = 'warp';
 crop_padding = 16;

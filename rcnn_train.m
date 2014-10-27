@@ -16,15 +16,6 @@ function [rcnn_model, rcnn_k_fold_model] = ...
 %   net_file          Path to the Caffe CNN to use
 %   cache_name        Path to the precomputed feature cache
 
-% AUTORIGHTS
-% ---------------------------------------------------------
-% Copyright (c) 2014, Ross Girshick
-% 
-% This file is part of the R-CNN code and is available 
-% under the terms of the Simplified BSD License provided in 
-% LICENSE. Please retain this notice and LICENSE if you use 
-% this file (or any portion of it) in your project.
-% ---------------------------------------------------------
 
 % TODO:
 %  - allow training just a subset of classes
@@ -44,14 +35,19 @@ ip.addParamValue('net_file', ...
     @isstr);
 ip.addParamValue('cache_name', ...
     'v1_finetune_voc_2007_trainval_iter_70000', @isstr);
-
+ip.addParamValue('norm_weight',     true,       @isscalar);
+ip.addParamValue('equal_dim',       true,       @isscalar);
+ip.addParamValue('proj',            true,       @isscalar);
+ip.addParamValue('whiten',          true,       @isscalar);
+ip.addParamValue('pca_ratio',          1,       @isscalar);
 
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
-
+true
 %opts.net_def_file = './model-defs/rcnn_batch_256_output_fc7.prototxt';
-opts.net_def_file = './model-defs/pascal_top_entropy_easy.prototxt';
-
+%opts.net_def_file = './model-defs/pascal_top_entropy_easy.prototxt';
+opts.net_def_file = './model-defs/pascal_top_softmax_back.prototxt';
+fprintf('===================opts.proj=%d, whiten=%d,pca_ratio=%f=================\n', opts.proj, opts.whiten, opts.pca_ratio);
 conf = rcnn_config('sub_dir', imdb.name);
 
 % Record a log of the training and test procedure
@@ -80,10 +76,39 @@ rcnn_model.classes = imdb.classes;
 rcnn_model.feat_opts = conf.feat_opts;
 rcnn_model.dims = get_feat_dims(rcnn_model.feat_opts);
 rcnn_model.feat_dim = sum(rcnn_model.dims);
+rcnn_model.exist_r = exist_response(rcnn_model.feat_opts);
+rcnn_model.exist_w = exist_weight(rcnn_model.feat_opts);
+rcnn_model.norm_weight = opts.norm_weight;
+rcnn_model.equal_dim = opts.equal_dim;
+rcnn_model.proj = opts.proj;
+rcnn_model.whiten = opts.whiten;
+rcnn_model.proj_dim = rcnn_model.feat_dim;
 
 % ------------------------------------------------------------------------
 % Get the average norm of the features
-[opts.feat_norm_mean, stdd] = rcnn_feature_stats(imdb, opts.layer, rcnn_model);
+if opts.proj
+  fprintf('load eigen\n');
+  eigen = load_eigen(rcnn_model)
+  if opts.pca_ratio < 1
+    s = sum(eigen.eigen_val);
+    p_sum = 0;
+    for i = 1:rcnn_model.feat_dim
+      p_sum = p_sum + eigen.eigen_val(i);
+      if p_sum >= opts.pca_ratio*s
+        rcnn_model.proj_dim = i;
+        break;
+      end
+    end
+    fprintf('~~~~~~~~~~~~~pcaRatio=%f\tproj_dim=%d~~~~~~~~~~~~~~~~~~~~~~~~\n', opts.pca_ratio, rcnn_model.proj_dim);
+    eigen.eigen_vec = eigen.eigen_vec(:,1:rcnn_model.proj_dim);
+    eigen.eigen_val = eigen.eigen_val(1:rcnn_model.proj_dim);
+    rcnn_model.feat_dim = rcnn_model.proj_dim; %TODO
+    rcnn_model.dims = rcnn_model.proj_dim;
+  end
+else
+  eigen = [];
+end
+[opts.feat_norm_mean, stdd] = rcnn_feature_stats(imdb, opts.layer, rcnn_model, eigen);
 print_array('average norm', opts.feat_norm_mean);
 print_array('std', stdd);
 rcnn_model.training_opts = opts;
@@ -93,14 +118,15 @@ rcnn_model.training_opts = opts;
 % Get all positive examples
 % We cache only the pool5 features and convert them on-the-fly to
 % fc6 or fc7 as required
+rcnn_model.cache_name
 save_file = sprintf('./feat_cache/%s/%s/gt_pos_layer_5_cache.mat', ...
     rcnn_model.cache_name, imdb.name);
 try
   load(save_file);
-  fprintf('Loaded saved positives from ground truth boxes\n');
+  fprintf('Loaded saved positives from ground truth boxes\nfile_name=%s\n', save_file);
 catch
-  [X_pos, keys_pos] = get_positive_pool5_features(imdb, opts);
-  save(save_file, 'X_pos', 'keys_pos', '-v7.3');
+  [X_pos, keys_pos, im_IX] = get_positive_pool5_features(imdb, opts);
+  save(save_file, 'X_pos', 'keys_pos', 'im_IX', '-v7.3');
 end
 % Init training caches
 caches = {};
@@ -109,7 +135,8 @@ for i = imdb.class_ids
       imdb.classes{i}, size(X_pos{i},1));
   %X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
   %X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
-  X_pos{i} = get_feature(X_pos{i}, rcnn_model);
+  %fprintf('~~~~~~~~~~class %d: len of pos = %d, num of im = %d~~~~~~~~~~~~\n',i, size(X_pos{i},1), size(im_IX(i), 1));
+  X_pos{i} = get_feature(X_pos{i}, rcnn_model, imdb.name, im_IX{i}, eigen);
   X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean, rcnn_model);
   caches{i} = init_cache(X_pos{i}, keys_pos{i});
 end
@@ -129,8 +156,7 @@ for hard_epoch = 1:max_hard_epochs
     % Get hard negatives for all classes at once (avoids loading feature cache
     % more than once)
     [X, keys] = sample_negative_features(first_time, rcnn_model, caches, ...
-        imdb, i);
-
+        imdb, i, eigen);
     % Add sampled negatives to each classes training cache, removing
     % duplicates
     for j = imdb.class_ids
@@ -223,14 +249,24 @@ end
 
 % ------------------------------------------------------------------------
 function [X_neg, keys] = sample_negative_features(first_time, rcnn_model, ...
-                                                  caches, imdb, ind)
+                                                  caches, imdb, ind, eigen)
 % ------------------------------------------------------------------------
 opts = rcnn_model.training_opts;
-
+%{
 d = rcnn_load_cached_pool5_features(opts.cache_name, ...
     imdb.name, imdb.image_ids{ind});
+%}
+
+d = rcnn_load_cached_pool5_features(opts.cache_name, ...
+    imdb.name, imdb.image_ids{ind}, rcnn_model.exist_r, {'overlap'});
 
 class_ids = imdb.class_ids;
+
+%d.feat = rcnn_pool5_to_fcX(d.feat, opts.layer, rcnn_model);
+%d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
+d.feat = get_feature(d.feat, rcnn_model, imdb.name, ...
+    struct('image_id', imdb.image_ids{ind}, 'IX', []), eigen);
+d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean, rcnn_model);
 
 if isempty(d.feat)
   X_neg = cell(max(class_ids), 1);
@@ -238,11 +274,7 @@ if isempty(d.feat)
   return;
 end
 
-%d.feat = rcnn_pool5_to_fcX(d.feat, opts.layer, rcnn_model);
-%d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean);
-d.feat = get_feature(d.feat, rcnn_model);
-d.feat = rcnn_scale_features(d.feat, opts.feat_norm_mean, rcnn_model);
-sprintf('%d features in image %d', size(d.feat, 1), ind)
+fprintf('%d features in image %d\n', size(d.feat, 1), ind);
 
 neg_ovr_thresh = 0.3;
 
@@ -251,6 +283,7 @@ if first_time
     I = find(d.overlap(:, cls_id) < neg_ovr_thresh);
     X_neg{cls_id} = d.feat(I,:);
     keys{cls_id} = [ind*ones(length(I),1) I];
+    %fprintf('class %d, neg sample num: %d\n', cls_id, length(I));
   end
 else
   zs = bsxfun(@plus, d.feat*rcnn_model.detectors.W, rcnn_model.detectors.B);
@@ -270,6 +303,7 @@ else
     % Unique hard negatives
     X_neg{cls_id} = d.feat(I,:);
     keys{cls_id} = [ind*ones(length(I),1) I];
+    %fprintf('class %d: neg sample num: %d\n', cls_id, length(I));
   end
 end
 
@@ -350,28 +384,32 @@ neg_inds = find(ismember(cache.keys_neg(:,1), fold) == false);
 
 
 % ------------------------------------------------------------------------
-function [X_pos, keys] = get_positive_pool5_features(imdb, opts)
+function [X_pos, keys, im_IX] = get_positive_pool5_features(imdb, opts)
 % ------------------------------------------------------------------------
 X_pos = cell(max(imdb.class_ids), 1);
 keys = cell(max(imdb.class_ids), 1);
+im_IX = cell(max(imdb.class_ids), 1);
 
 for i = 1:length(imdb.image_ids)
   tic_toc_print('%s: pos features %d/%d\n', ...
                 procid(), i, length(imdb.image_ids));
 
   d = rcnn_load_cached_pool5_features(opts.cache_name, ...
-      imdb.name, imdb.image_ids{i});
+      imdb.name, imdb.image_ids{i}, true);
 
   for j = imdb.class_ids
     if isempty(X_pos{j})
       X_pos{j} = single([]);
       keys{j} = [];
+      im_IX{j} = [];
     end
     sel = find(d.class == j);
     if ~isempty(sel)
       X_pos{j} = cat(1, X_pos{j}, d.feat(sel,:));
       keys{j} = cat(1, keys{j}, [i*ones(length(sel),1) sel]);
-    end
+      im_IX{j} = cat(1, im_IX{j}, ... 
+          struct('image_id', imdb.image_ids{i}, 'IX', sel)); 
+      end
   end
 end
 

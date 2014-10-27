@@ -1,0 +1,13 @@
+===========================testing svm_C = 0.025000===========================
+
+~~~~~~~~~~~training~~~~~~~~~
+{Operation terminated by user during imdb_from_voc (line 32)
+
+
+In rcnn_exp_train_and_test (line 25)
+imdb_train = imdb_from_voc(VOCdevkit, 'trainval', '2007');
+
+In train_svm_C (line 26)
+  [test_res{i}, ~, rcnn_model ] = ...
+} 
+quit

@@ -1,17 +1,21 @@
-function test_fcx(model, num, layer)
+function test_fcx(model, num)
 global my_test_feat_opts
-my_test_feat_opts = struct('layer', {7, 5},'d', {false, false}, ...
+my_test_feat_opts = struct('layer', {7, 6},'d', {false, false}, ...
     'w', false, 'combine', @l2, 'combine_name', 'l2'); 
 sprintf(feat_opts_to_string(my_test_feat_opts))
 conf = rcnn_config('sub_dir', 'haha');
 model.feat_opts = conf.feat_opts;
 model.dims = get_feat_dims(model.feat_opts);
 model.feat_dim = sum(model.dims);
+model.exist_r = exist_response(model.feat_opts);
+model.exist_w = exist_weight(model.feat_opts);
+model.norm_weight = false;
+model.equal_dim = false;
 
 pool5 = single(rand(num, 9216));
 feat = get_feature(single(pool5), model);
 fcx1 = rcnn_pool5_to_fcX(pool5, 7-5, model);
-fcx2 = rcnn_pool5_to_fcX(pool5, 5-5, model);
+fcx2 = rcnn_pool5_to_fcX(pool5, 6-5, model);
 fcx = cat(2, fcx1, fcx2);
 diff = abs(feat - fcx);
 [num, dim] = size(diff);
