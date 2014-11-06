@@ -2,8 +2,10 @@ function [res_test, res_train, rcnn_model] = rcnn_exp_train_and_test(norm_weight
 % Runs an experiment that trains an R-CNN model and tests it.
 
 % -------------------- CONFIG --------------------
-net_file     = './data/caffe_nets/finetune_voc_2007_trainval_iter_70k';
-cache_name   = 'v1_finetune_voc_2007_trainval_iter_70k';
+%net_file     = './data/caffe_nets/finetune_voc_2007_trainval_iter_70k';
+net_file = './data/nizf/nizf_model';
+cache_name   = 'l7_b_r_l2';
+%cache_name   = 'v1_finetune_voc_2007_trainval_iter_70k';
 crop_mode    = 'warp';
 crop_padding = 16;
 layer        = 7;

@@ -1,10 +1,10 @@
 function [train_res, test_res] = train_svm_C(part_id)
 fprintf('test the following SVM_C\n')
-svm_Cs = 10^(-3)*2.^[-4:1];
+svm_Cs = 10^(-3)*2.^[-2, -1, 1];
 if part_id == 1
-  svm_Cs = svm_Cs(1:3)
+  svm_Cs = svm_Cs(1:2)
 else 
-  svm_Cs = svm_Cs(4:end)
+  svm_Cs = svm_Cs(3:end)
 end
 num_C = length(svm_Cs)
 
@@ -31,7 +31,7 @@ for i = 1:num_C
   fprintf('\n~~~~~~~~testing svm_C=%f on trainval~~~~~~~~~~~~\n', svm_C);
   train_res{i} = rcnn_test(rcnn_model, imdb_train);
   fprintf('===========================testing svm_C = %f done===========================\n', svm_C);
-  file_name = sprintf('svm/%s_%f', feat_opts_to_string(my_test_feat_opts), svm_C);
+  file_name = sprintf('svm/%s_%f.mat', feat_opts_to_string(my_test_feat_opts), svm_C);
   train_result = train_res{i}; test_result = test_res{i};
   save(file_name, 'svm_C', 'train_result', 'test_result');
   caffe('reset');

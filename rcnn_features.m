@@ -26,6 +26,7 @@ end
 % for a typical high-end GPU.
 [batches, batch_padding] = rcnn_extract_regions(im, boxes, rcnn_model);
 batch_size = rcnn_model.cnn.batch_size;
+fprintf('batch_size = %d!!!!!!!!!!!!\n', batch_size);
 
 % compute features for each batch of region images
 feat_dim = -1;
@@ -33,15 +34,21 @@ feat = [];
 curr = 1;
 for j = 1:length(batches)
   % forward propagate batch of region images 
+  %fprintf('before caffe\n');
+  %fprintf('size of batch %d:\n',j);
+ % disp(size(batches(j)));
+  %disp(size(x{1}));
   f = caffe('forward', batches(j));
+  %fprintf('after caffe\n');
   f = f{1};
   f = f(:);
-  
+ % fprintf('size of f [%d, %d]\n', size(f, 1), size(f,2));
   % first batch, init feat_dim and feat
   if j == 1
     feat_dim = length(f)/batch_size;
     feat = zeros(size(boxes, 1), feat_dim, 'single');
   end
+  %fprintf('feat_dim %d, batch_size %d\n', feat_dim, batch_size);
 
   f = reshape(f, [feat_dim batch_size]);
 

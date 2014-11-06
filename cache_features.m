@@ -30,10 +30,12 @@ ip.addOptional('end', 0, @isscalar);
 ip.addOptional('crop_mode', 'warp', @isstr);
 ip.addOptional('crop_padding', 16, @isscalar);
 ip.addOptional('net_file', ...
-    './data/caffe_nets/finetune_voc_2007_trainval_iter_70k', ...
+    'sorry', ...
     @isstr);
 ip.addOptional('cache_name', ...
     'oops', @isstr);
+ip.addOptional('backward_type', 'no', @isstr);
+ip.addOptional('opts',          [],   @isstruct);
 
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
@@ -43,13 +45,15 @@ assert(~(~feat_opt.d && feat_opt.w));
 if feat_opt.d && feat_opt.w
   batch_size = 1;
 else 
-  batch_size = 256;
+  batch_size = 128;
 end
 %TODO
 %opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_entropy.prototxt'];
 %opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_back.prototxt'];
-opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_loss.prototxt'];
-
+opts.net_def_file = ['./model-defs/nizf_batch_1_' opts.backward_type '.prototxt'];
+if opts.opts.do_lda
+  opts.opts.trans = load_trans(feat_opt, opts.opts);  
+end
 
 image_ids = imdb.image_ids;
 if opts.end == 0
@@ -76,7 +80,7 @@ fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 % load the region of interest database
 roidb = imdb.roidb_func(imdb);
 
-rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file, opts.cache_name, false);
+rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file, opts.cache_name);
 rcnn_model = rcnn_load_model(rcnn_model);
 rcnn_model.detectors.crop_mode = opts.crop_mode;
 rcnn_model.detectors.crop_padding = opts.crop_padding;
@@ -85,6 +89,7 @@ rcnn_model.cnn.batch_size = batch_size;
 
 total_time = 0;
 count = 0;
+neg_per_im = 10;
 for i = opts.start:opts.end
   fprintf('%s: cache features: %d/%d\n', procid(), i, opts.end);
 
@@ -99,9 +104,14 @@ for i = opts.start:opts.end
 
   d = roidb.rois(i);
   im = imread(imdb.image_at(i));
+  
+  IX = sample_neg(neg_per_im, d);
+  d.boxes = d.boxes(IX,:); d.class = d.class(IX); 
+  d.overlap = d.overlap(IX, :); d.gt = d.gt(IX);
 
   th = tic;
-  d.feat = weight_features(im, d.boxes, rcnn_model);
+  d.feat = weight_features(im, d.boxes, d.class, rcnn_model, opts.backward_type,...
+      opts.opts);
   fprintf(' [features: %.3fs]\n', toc(th));
 
   th = tic;
@@ -112,3 +122,23 @@ for i = opts.start:opts.end
   fprintf(' [avg time: %.3fs (total: %.3fs)]\n', ...
       total_time/count, total_time);
 end
+
+function IX = sample_neg(neg_per_im, d)
+num_pos = max(find(d.gt));
+num_neg = length(d.boxes) - num_pos;
+neg_per_im = min(neg_per_im, num_neg);
+IX = [1:num_pos+neg_per_im]';
+IX(num_pos+1:end) = num_pos+randperm(num_neg, neg_per_im);
+
+%TODO npcls suf
+function trans = load_trans(feat_opt, opts)
+trans_dir = ['./lda/trans/' feat_opts_to_string(feat_opt) '/'];
+pre = int2str(opts.max_num_per_class);
+if opts.do_normalize
+  pre = [pre '-norm'];
+end
+filename = [trans_dir pre '-TRANS.mat'];
+ld = load(filename);
+trans = ld.trans; clear ld;
+
+

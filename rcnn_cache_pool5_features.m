@@ -38,20 +38,26 @@ ip.addOptional('cache_name', ...
 
 ip.parse(imdb, varargin{:});
 opts = ip.Results;
-opts.net_def_file = './model-defs/rcnn_batch_256_output_pool5.prototxt';
+opts.net_def_file = './model-defs/nizf_batch_128_output_fc2.prototxt';
+%opts.net_def_file = './model-defs/rcnn_batch_256_output_pool5.prototxt';
+fprintf('net_def_file: %s\n', opts.net_def_file);
+fprintf('net_file: %s\n', opts.net_file);
+fprintf('cache_name: %s\n', opts.cache_name);
 
 image_ids = imdb.image_ids;
+%image_ids = {'002241', '001841'};
 if opts.end == 0
   opts.end = length(image_ids);
 end
 
 % Where to save feature cache
-opts.output_dir = ['./feat_cache/' opts.cache_name '/' imdb.name '/'];
+opts.output_dir = ['./feat_cache/' opts.cache_name '/' imdb.name '/']
 mkdir_if_missing(opts.output_dir);
 
 % Log feature extraction
 timestamp = datestr(datevec(now()), 'dd.mmm.yyyy:HH.MM.SS');
-diary_file = [opts.output_dir 'rcnn_cache_pool5_features_' timestamp '.txt'];
+diary_file = [opts.output_dir 'cache_nizf_fc2_features_' timestamp '.txt'];
+%diary_file = [opts.output_dir 'rcnn_cache_pool5_features_' timestamp '.txt'];
 diary(diary_file);
 fprintf('Logging output in %s\n', diary_file);
 

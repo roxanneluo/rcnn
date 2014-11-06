@@ -35,32 +35,11 @@ catch
   %num_feat = length(rcnn_model.feat_opts);
   for i = 1:length(image_ids)
     tic_toc_print('feature stats: %d/%d\n', i, length(image_ids));
-    % to ensure correctness
-    %{
-    if rcnn_model.exist_r
-      d = rcnn_load_cached_pool5_features(rcnn_model.cache_name, ...
-          imdb.name, image_ids{i}, rcnn_model.exist_r);
-      IX = randperm(size(d.feat,1), min(boxes_per_image, size(d.feat,1)));
-      X = d.feat(IX, :);
-    else 
-      d = struct('feat', []);
-      X=[]; IX = [];
-    end
-    %}
-    d = rcnn_load_cached_pool5_features(rcnn_model.cache_name, ...
-            imdb.name, image_ids{i}, true);
-    IX = randperm(size(d.feat,1), min(boxes_per_image, size(d.feat,1)));
-    X = d.feat(IX, :);
 
-    %X = rcnn_pool5_to_fcX(X, layer, rcnn_model);
-    X = get_feature(X, rcnn_model, imdb.name, ...
-        struct('image_id', image_ids{i}, 'IX', IX), eigen);
-    %{
-    if ~rcnn_model.exist_r
-      IX = randperm(size(X, 1), min(boxes_per_image, size(X,1)));
-      X = X(IX, :);
-    end
-    %}
+    X = get_feature(rcnn_model, imdb.name, ...
+        struct('image_id', image_ids{i}, 'IX', []), eigen);
+    IX = randperm(size(X,1), min(boxes_per_image, size(X,1)));
+    X = X(IX, :);
     
     part_norms = zeros(size(X, 1), num_feat);
     dim_start = 1;

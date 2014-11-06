@@ -74,10 +74,10 @@ catch
       count = count + 1;
       fprintf('%s: test (%s) %d/%d\n', procid(), imdb.name, count, length(image_ids));
       d = rcnn_load_cached_pool5_features(feat_opts.cache_name, ...
-          imdb.name, image_ids{i}, rcnn_model.exist_r, {'boxes', 'gt'});
+          imdb.name, image_ids{i}, false, {'boxes', 'gt'});
       %d.feat = rcnn_pool5_to_fcX(d.feat, feat_opts.layer, rcnn_model);
       %d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean);
-      d.feat = get_feature(d.feat, rcnn_model, imdb.name, ...
+      d.feat = get_feature(rcnn_model, imdb.name, ...
           struct('image_id', image_ids{i}, 'IX', []), eigen);
       d.feat = rcnn_scale_features(d.feat, feat_opts.feat_norm_mean, rcnn_model);
       zs = bsxfun(@plus, d.feat*rcnn_model.detectors(f).W, rcnn_model.detectors(f).B);

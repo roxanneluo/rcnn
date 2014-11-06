@@ -6,7 +6,7 @@ equal_dim = true;
 norm_weight = true;
 svm_C = 10^-3;
 global proj whiten pca_ratio
-proj = false; whiten = false; pca_ratio = 1;
+proj = true; whiten = false; pca_ratio = 1;
 
 model = set_field(model, 'dims',        get_feat_dims(feat_opts));
 model = set_field(model, 'exist_r',     exist_response(feat_opts));

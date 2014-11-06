@@ -1,4 +1,4 @@
-function feat = caffe_weight_features(im, boxes, rcnn_model)
+function feat = weight_features(im, boxes, labels, rcnn_model, backward_type, opts)
 % feat = rcnn_features(im, boxes, rcnn_model)
 %   Compute CNN features on a set of boxes.
 %
@@ -33,35 +33,76 @@ assert(1 <= feat_opt.layer && feat_opt.layer <= 5);
 layer = get_layer(feat_opt);
 
 % compute features for each batch of region images
-feat = [];
-curr = 1;
-padding = single(0);
-[ww, wh, wc, wn] = size(rcnn_model.cnn.layers(feat_opt.layer).weights{1});
-across_dim = wn;
-along_dim = ww*wh*wc;
-feat = zeros(size(boxes, 1), across_dim, 'single');
-fprintf('[%d, %d]\n', size(boxes, 1), across_dim);
+%dims = get_feat_dim(feat_opt);
+%feat_dim = prod(dims);
+%feat = zeros(size(boxes, 1), feat_dim, 'single');
+%fprintf('[%d, %d]\n', size(boxes, 1), feat_dim);
+if strcmp(backward_type, 'sl')
+  labels = single(labels);
+  input2 = labels;
+elseif strcmp(backward_type, 'sb')
+  input2 = single(zeros(size(boxes,1),1));
+else
+  assert(false);
+end
 for j = 1:length(batches)
   assert(size(batches{j},4)==1);
-  caffe('forward_backward', {batches{j}});
-  %caffe('forward_backward', {batches{j}; padding});
+  caffe('forward_backward', {batches{j}; input2(j)});
   res = caffe('get_weight', layer, feat_opt.d);
   blob = res.blobs{1};
-  blob = reshape(blob, [along_dim, across_dim, 1]);
 
-  f = combine(blob, feat_opt.combine, false); % I don't normalize when caching TODO
+  if j == 1
+    feat_dim = numel(blob);
+    feat = zeros(size(boxes, 1), feat_dim, 'single');
+    fprintf('[%d, %d]\n', size(boxes, 1), feat_dim);
+  end
 
-  feat(curr:curr+size(f,1)-1,:) = f;
-  curr = curr + batch_size;
+  blob = reshape(blob, [feat_dim, 1]);
+
+  feat(j,:) = blob';
 end
-fprintf('layer_name: %s, size[%d, %d]\n', res.layer_name, ...
-    size(boxes, 1), across_dim);
+if isfield(opts, 'do_lda') && opts.do_lda
+  if isfield(opts, 'do_normalize') && opts.do_normalize
+    feat = normalize(feat);
+  end
+  feat = lda(feat, opts.trans);
+end
+fprintf('layer_name: %s, max=%d, size[%d, %d]\n', res.layer_name, ...
+    max(max(feat)), size(feat, 1), size(feat, 2));
 
 % ---------------------------------------------------------
 function layer = get_layer(feat_opt)
 % ---------------------------------------------------------
 if feat_opt.layer <= 3
-  layer = (feat_opt.layer-1)*4;
+  assert(feat_opt.w && feat_opt.d);
+  layer = (feat_opt.layer-3)*6;
 else
-  layer = 8 + 2*(feat_opt.layer-3);
+  switch feat_opt.layer
+  case 4
+    assert(feat_opt.d && feat_opt.w);
+    layer = 16;
+  case 5
+    if feat_opt.w
+      layer = 22;
+    else
+      layer = 26;
+    end
+  case 6
+    if feat_opt.w
+      layer = 27;
+    else 
+      layer = 28;
+    end
+  case 7
+    if feat_opt.w
+      layer = 29
+    else
+      layer = 30;
+    end
+  case 8
+    layer = 31;
+  case 9
+    layer = 32;
+  end
+  % for conv layer cccpX's layer = conv's layer + 2; however for cccp4x, layer = 20
 end

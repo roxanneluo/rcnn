@@ -30,4 +30,5 @@ addpath('draw');
 addpath('test');
 addpath('fuse-funcs');
 addpath('pca');
+addpath('lda');
 fprintf('R-CNN startup done\n');

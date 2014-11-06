@@ -18,4 +18,7 @@ else
 end
 
 str = sprintf('l%d_%s_%s_%s', feat_opt.layer, bd, wr, feat_opt.combine_name);
+if isfield(feat_opt, 'suf') && ~isempty(feat_opt.suf)
+  str = [str '_' feat_opt.suf];
+end
 

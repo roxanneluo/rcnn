@@ -1,0 +1,724 @@
+[?1h=
+                                                                             < M A T L A B (R) >
+                                                                   Copyright 1984-2013 The MathWorks, Inc.
+                                                                     R2013a (8.1.0.604) 64-bit (glnxa64)
+                                                                              February 15, 2013
+
+ 
+To get started, type one of these: helpwin, helpdesk, or demo.
+For product information, visit www.mathworks.com.
+ 
+R-CNN startup done
+net_def_file: ./model-defs/nizf_batch_80_output_fc2.prototxt
+net_file: ./data/nizf/nizf_model
+cache_name: l7_b_r_l2
+
+opts = 
+
+      cache_name: 'l7_b_r_l2'
+       crop_mode: 'warp'
+    crop_padding: 16
+             end: 2501
+            imdb: [1x1 struct]
+        net_file: './data/nizf/nizf_model'
+           start: 1
+    net_def_file: './model-defs/nizf_batch_80_output_fc2.prototxt'
+      output_dir: './feat_cache/l7_b_r_l2/voc_2007_train/'
+
+Logging output in ./feat_cache/l7_b_r_l2/voc_2007_train/cache_nizf_fc2_features_29.Oct.2014:11.31.07.txt
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Feature caching options:
+      cache_name: 'l7_b_r_l2'
+       crop_mode: 'warp'
+    crop_padding: 16
+             end: 2501
+            imdb: [1x1 struct]
+        net_file: './data/nizf/nizf_model'
+           start: 1
+    net_def_file: './model-defs/nizf_batch_80_output_fc2.prototxt'
+      output_dir: './feat_cache/l7_b_r_l2/voc_2007_train/'
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+rcnn-nizf: cache features: 1/2501
+batch_size = 80!!!!!!!!!!!!
+before caffe
+size of batch 1:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 2:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 3:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 4:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 5:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 6:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 7:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 8:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 9:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 10:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 11:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 12:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 13:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 14:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 15:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 16:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+ [features: 9.994s]
+ [saving:   0.496s]
+ [avg time: 10.565s (total: 10.565s)]
+rcnn-nizf: cache features: 2/2501
+batch_size = 80!!!!!!!!!!!!
+before caffe
+size of batch 1:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 2:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 3:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 4:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 5:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 6:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 7:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 8:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 9:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 10:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 11:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 12:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 13:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 14:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 15:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 16:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 17:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 18:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 19:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 20:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 21:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 22:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 23:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 24:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 25:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 26:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 27:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 28:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 29:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 30:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 31:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 32:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 33:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 34:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 35:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 36:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 37:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+ [features: 22.846s]
+ [saving:   1.126s]
+ [avg time: 17.343s (total: 34.686s)]
+rcnn-nizf: cache features: 3/2501
+batch_size = 80!!!!!!!!!!!!
+before caffe
+size of batch 1:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 2:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 3:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 4:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 5:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 6:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 7:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 8:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 9:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 10:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 11:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 12:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 13:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 14:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 15:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 16:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 17:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 18:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 19:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 20:
+     1     1
+
+   227   227     3    80
+
+after caffe
+size of f [327680, 1]
+feat_dim 4096, batch_size 80
+before caffe
+size of batch 21:
+     1     1
+
+   227   227     3    80
+
+
+>> 
+>> 
+>> quit
+[?1l>

@@ -32,4 +32,4 @@ else
   caffe('set_mode_gpu');
 end
 caffe('set_phase_train');
-rcnn_model.cnn.layers = caffe('get_weights');
+%rcnn_model.cnn.layers = caffe('get_weights');

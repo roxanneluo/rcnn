@@ -10,6 +10,7 @@ function f = rcnn_scale_features(f, feat_norm_mean, feat_struct)
 % same across all features.
 dims = feat_struct.dims;
 num_feats = length(dims);
+fprintf('num_feats = %d\n', num_feats)
 feat_dim = feat_struct.feat_dim;
 if feat_struct.equal_dim
   target_norm = 20*sqrt(dims/feat_dim)';

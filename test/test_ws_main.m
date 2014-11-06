@@ -38,7 +38,7 @@ for i = 1:length(weights)
   timestamp = datestr(datevec(now()), 'dd.mmm.yyyy:HH.MM.SS');
   diary_file = [conf.cache_dir 'ws_test_' timestamp '.txt']
   diary(diary_file);
-
+%{
   fprintf('=====================testing weighted sum, w=%f======================\n', weight);  
   fprintf('==================testing on test =============\n');
   res_test = test_ws(model5, model7, imdb_test,weight,dir_suffix);
@@ -66,4 +66,5 @@ for i = 1:length(weights)
   disp(aps);
   disp(mean(aps));
   fprintf('~~~~~~~~~~~~weight=%f done~~~~~~~~\n', weights(i));
+  %}
 end

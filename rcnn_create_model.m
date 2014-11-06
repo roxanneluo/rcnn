@@ -1,4 +1,4 @@
-function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, cache_name, top_net)
+function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, cache_name)
 % cnn is the top_net (from pool5 to entropy) if top_net. 
 % Otherwise, it's the normal net
 % AUTORIGHTS
@@ -14,6 +14,7 @@ function rcnn_model = rcnn_create_model(cnn_definition_file, cnn_binary_file, ca
 if ~exist('cache_name', 'var') || isempty(cache_name)
   cache_name = 'none';
 end
+
 
 %  model = 
 %    cnn: [1x1 struct]
@@ -47,12 +48,7 @@ cnn.binary_file = cnn_binary_file;
 cnn.definition_file = cnn_definition_file;
 cnn.init_key = -1;
 cnn.input_size = 227;
-if ~top_net
-  cnn.batch_size = 256;
-else 
-% init cnn_top (from pool5 to entropy)
-  cnn.batch_size = 2048; 
-end
+cnn.batch_size = 128;
 % load the ilsvrc image mean
 data_mean_file = './external/caffe/matlab/caffe/ilsvrc_2012_mean.mat';
 assert(exist(data_mean_file, 'file') ~= 0);
