@@ -1,8 +1,9 @@
 function merge_trans(feat_name, num_filter, npcls, do_normalize)
+opts = []; opts.do_normalize = do_normalize;
 trans_dir = ['./lda/trans/' feat_name '/'];
-trans_in_dir = [trans_dir int2str(npcls) nm_name('_', do_norm) '/'];
-merge_file = sprintf('%s%d%s-TRANS.mat',nm_name('-', do_norm), trans_dir, npcls); 
-merge_err_file = sprintf('%s%d-TRANS-ERR.log', trans_dir, npcls);
+trans_in_dir = [trans_dir int2str(npcls) opts_name(opts) '/'];
+merge_file = get_merged_trans_filename(feat_name, npcls, opts);
+merge_err_file = sprintf('%s%d_TRANS_ERR.log', trans_dir, npcls);
 merge_err_f = -1;
 trans = cell(num_filter);
 for i = 1:num_filter
@@ -26,10 +27,4 @@ save(merge_file, 'trans');
 fprintf('Saved\n');
 if merge_err_f ~= -1
   fclose(merge_err_f);
-end
-
-function name = nm_name(split, do_norm)
-name = '';
-if do_norm
-  name = [split 'norm'];
 end

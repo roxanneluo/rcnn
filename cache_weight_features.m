@@ -12,7 +12,7 @@ opts = ip.Results;
 % -------------------- CONFIG --------------------
 feat_opt = struct('layer', layer, 'd', true, ...
     'w', true, 'combine', @l2, 'combine_name', 'l2', 'suf', backward_type);
-cache_name  = feat_opts_to_string(feat_opt);
+cache_name  = [feat_opts_to_string(feat_opt) opts_name(opts)];
 %cache_name   = feat_opts_to_string(feat_opt);
 %net_file     = './data/caffe_nets/finetune_voc_2007_trainval_iter_70k';
 net_file     = './data/nizf/nizf_model';

@@ -18,6 +18,8 @@ lda/filter/*
 draw-res/*
 detector-res/*
 layers/*
+layer/s
+data/nizf/nizf_model
 *.jpg
 *.bmp
 *.swo

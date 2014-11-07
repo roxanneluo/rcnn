@@ -52,7 +52,9 @@ end
 %opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_back.prototxt'];
 opts.net_def_file = ['./model-defs/nizf_batch_1_' opts.backward_type '.prototxt'];
 if opts.opts.do_lda
-  opts.opts.trans = load_trans(feat_opt, opts.opts);  
+  trans = load_trans(feat_opts_to_string(feat_opt), opts.opts);  
+  proj_dim = cell_size_sum(trans, 2);
+  filter_start = get_filter_start(trans);
 end
 
 image_ids = imdb.image_ids;
@@ -104,14 +106,22 @@ for i = opts.start:opts.end
 
   d = roidb.rois(i);
   im = imread(imdb.image_at(i));
-  
+%{  
   IX = sample_neg(neg_per_im, d);
   d.boxes = d.boxes(IX,:); d.class = d.class(IX); 
   d.overlap = d.overlap(IX, :); d.gt = d.gt(IX);
-
+%}
   th = tic;
   d.feat = weight_features(im, d.boxes, d.class, rcnn_model, opts.backward_type,...
       opts.opts);
+  if opts.opts.do_normalize
+    fprintf('\tnorm');
+    d.feat = normalize(d.feat);
+  end
+  if opts.opts.do_lda
+    fprintf('\tlda');
+    d.feat = lda(d.feat, trans, proj_dim, filter_start); 
+  end
   fprintf(' [features: %.3fs]\n', toc(th));
 
   th = tic;
@@ -129,16 +139,4 @@ num_neg = length(d.boxes) - num_pos;
 neg_per_im = min(neg_per_im, num_neg);
 IX = [1:num_pos+neg_per_im]';
 IX(num_pos+1:end) = num_pos+randperm(num_neg, neg_per_im);
-
-%TODO npcls suf
-function trans = load_trans(feat_opt, opts)
-trans_dir = ['./lda/trans/' feat_opts_to_string(feat_opt) '/'];
-pre = int2str(opts.max_num_per_class);
-if opts.do_normalize
-  pre = [pre '-norm'];
-end
-filename = [trans_dir pre '-TRANS.mat'];
-ld = load(filename);
-trans = ld.trans; clear ld;
-
 

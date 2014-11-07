@@ -61,12 +61,6 @@ for j = 1:length(batches)
 
   feat(j,:) = blob';
 end
-if isfield(opts, 'do_lda') && opts.do_lda
-  if isfield(opts, 'do_normalize') && opts.do_normalize
-    feat = normalize(feat);
-  end
-  feat = lda(feat, opts.trans);
-end
 fprintf('layer_name: %s, max=%d, size[%d, %d]\n', res.layer_name, ...
     max(max(feat)), size(feat, 1), size(feat, 2));
 
