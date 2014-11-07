@@ -17,7 +17,7 @@ dump_log_filename = [data_dir 'dump.log'];
 dump_log = fopen(dump_log_filename, 'a');
 
 VOCdevkit = './datasets/VOCdevkit2007';
-imdb = imdb_from_voc(VOCdevkit, 'train', '2007');
+imdb = imdb_from_voc(VOCdevkit, 'trainval', '2007');
 
 roidb = imdb.roidb_func(imdb);
 rcnn_model = prepare_model(feat_opt, opts)
