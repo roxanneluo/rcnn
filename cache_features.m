@@ -122,7 +122,7 @@ for i = opts.start:opts.end
     fprintf('\tlda');
     d.feat = lda(d.feat, trans, proj_dim, filter_start); 
   end
-  fprintf(' [features: %.3fs]\n', toc(th));
+  fprintf('\n [features: %.3fs]\n', toc(th));
 
   th = tic;
   save(save_file, '-struct', 'd');

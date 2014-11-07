@@ -1,8 +1,8 @@
 function cache_weight_features(chunk, layer, backward_type, varargin)
 ip = inputParser;
-ip.addRequired('chunk', chunk,  @isstr);
-ip.addRequired('layer', layer,  @isstr);
-ip.addRequired('backward_type', backward_type, @isstr);
+ip.addRequired('chunk', @isstr);
+ip.addRequired('layer', @isscalar);
+ip.addRequired('backward_type', @isstr);
 ip.addParamValue('do_normalize',  true,   @isscalar);
 ip.addParamValue('do_lda',        true,   @isscalar);
 ip.addParamValue('max_num_per_class', 5500,   @isscalar);

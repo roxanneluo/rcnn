@@ -1,5 +1,5 @@
 function merge_trans(feat_name, num_filter, npcls, do_normalize)
-opts = []; opts.do_normalize = do_normalize;
+opts = []; opts.do_normalize = do_normalize; opts.do_lda = true;
 trans_dir = ['./lda/trans/' feat_name '/'];
 trans_in_dir = [trans_dir int2str(npcls) opts_name(opts) '/'];
 merge_file = get_merged_trans_filename(feat_name, npcls, opts);
