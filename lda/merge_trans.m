@@ -10,7 +10,7 @@ for i = 1:num_filter
   filename = get_trans_filename(trans_in_dir, i);
   if ~exist(filename, 'file')
     if merge_err_f == -1
-      merge_err_f = fopen(merge_err_f, 'w');
+      merge_err_f = fopen(merge_err_file, 'w');
     end
     fprintf(merge_err_f, '%d: %s does not exist\n', i, filename);
     fprintf('%d: %s does not exist\n', i, filename);

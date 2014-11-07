@@ -59,7 +59,7 @@ for i = 1:num_flt_batch
     compute_trans(data(:, dim_start:dim_end), label, num_cls-1, trans_file_name);
     catch err
       if trans_err_f == -1
-        trans_err_f = fopen(trans_err_file);
+        trans_err_f = fopen(trans_err_file, 'w');
       end
       fprintf('f: %s\n\t%s\n', err.identifier, err.message);
       fprintf(trans_err_f, 'f: %s\n\t%s\n', err.identifier, err.message);
