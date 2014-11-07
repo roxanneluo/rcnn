@@ -11,6 +11,7 @@ ip.addParamValue('neg_per_im',        0,   @isscalar);
 ip.addParamValue('backward_type',     'sl',   @isstr);
 ip.parse(feat_opt, num_filter, class_group, varargin{:});
 opts = ip.Results;
+opts.do_lda = true;
  
 feat_name = feat_opts_to_string(feat_opt);
 lda_dir = './lda/'; 

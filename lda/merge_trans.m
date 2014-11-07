@@ -5,7 +5,7 @@ trans_in_dir = [trans_dir int2str(npcls) opts_name(opts) '/'];
 merge_file = get_merged_trans_filename(feat_name, npcls, opts);
 merge_err_file = sprintf('%s%d_TRANS_ERR.log', trans_dir, npcls);
 merge_err_f = -1;
-trans = cell(num_filter);
+trans = cell(num_filter, 1);
 for i = 1:num_filter
   filename = get_trans_filename(trans_in_dir, i);
   if ~exist(filename, 'file')
