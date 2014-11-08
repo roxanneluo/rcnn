@@ -1,4 +1,4 @@
-function draw_sort(data, nums, pre, dir)
+function draw_all_sort(data, nums, pre, dir)
 [~,IX] = sort(data, 2);
 dim = size(IX,2);
 %globalIX = get_baseIX(IX);
@@ -12,7 +12,7 @@ classes = {imdb.classes{:}, 'background'};
 classIX = zeros(num_class, size(IX,2));
 num_start = 1;
 for i = 1:num_class
-  num_end = num_start + nums(i)-1;
+data, nums, pre  num_end = num_start + nums(i)-1;
   %classIX(i,:) = get_baseIX(IX(num_start:num_end,:));
   classIX(i,:) = get_baseIX(data(num_start:num_end,:));
   draw_class_sort(dir, i, classes{i}, IX(num_start:num_end,:), classIX(i,:), [pre 'data_class']);
@@ -42,11 +42,6 @@ map = [classIX', [1:dim]'];
 map = sortrows(map);
 colorIX = map(:,2);
 
-%------------------------------------------------------
-function classIX = get_baseIX(data)
-%------------------------------------------------------
-dim_mean = mean(data);
-[~, classIX] = sort(dim_mean);
 
 %{
 %------------------------------------------------------
