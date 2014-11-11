@@ -18,8 +18,9 @@ lda/filter/*
 draw-res/*
 detector-res/*
 layers/*
-layer/s
+layers
 data/nizf/nizf_model
+profile_results*
 *.jpg
 *.bmp
 *.swo
