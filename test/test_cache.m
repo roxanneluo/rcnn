@@ -1,7 +1,7 @@
-function test_cache(feat_name)
+function test_cache(feat_name, dataset)
 VOCdevkit = './datasets/VOCdevkit2007';
-imdb = imdb_from_voc(VOCdevkit, 'trainval', '2007');
-filename = sprintf('test/%s_err_trainval.txt', feat_name); 
+imdb = imdb_from_voc(VOCdevkit, dataset, '2007');
+filename = sprintf('test/%s_err_%s.txt', feat_name, dataset); 
 f = fopen(filename, 'w');
 for i = 1:length(imdb.image_ids)
   try

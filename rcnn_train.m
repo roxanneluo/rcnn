@@ -64,7 +64,7 @@ fprintf('~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n');
 % ------------------------------------------------------------------------
 % Create a new rcnn model
 rcnn_model = rcnn_create_model(opts.net_def_file, opts.net_file,...
-    opts.cache_name);
+    conf.cache_dir);
 rcnn_model = rcnn_load_model(rcnn_model, conf.use_gpu);
 rcnn_model.detectors.crop_mode = opts.crop_mode;
 rcnn_model.detectors.crop_padding = opts.crop_padding;
@@ -108,6 +108,7 @@ if opts.proj
 else
   eigen = [];
 end
+fprintf('rcnn_model.cache_name = %s\n', rcnn_model.cache_name);
 [opts.feat_norm_mean, stdd] = rcnn_feature_stats(imdb, opts.layer, rcnn_model, eigen);
 print_array('average norm', opts.feat_norm_mean);
 print_array('std', stdd);
@@ -119,14 +120,14 @@ rcnn_model.training_opts = opts;
 % We cache only the pool5 features and convert them on-the-fly to
 % fc6 or fc7 as required
 rcnn_model.cache_name
-save_file = sprintf('./feat_cache/%s/%s/gt_pos_layer_5_cache.mat', ...
+save_file = sprintf('./feat_cache/%s/%s/gt_pos_cache.mat', ...
     rcnn_model.cache_name, imdb.name);
 try
   load(save_file);
   fprintf('Loaded saved positives from ground truth boxes\nfile_name=%s\n', save_file);
 catch
-  [keys_pos, im_IX] = get_positive_pool5_features(imdb, opts);
-  save(save_file, 'keys_pos', 'im_IX', '-v7.3');
+  [X_pos, keys_pos, im_IX] = get_positive_pool5_features(rcnn_model, imdb, opts, eigen);
+  save(save_file, 'X_pos', 'keys_pos', 'im_IX', '-v7.3');
 end
 % Init training caches
 caches = {};
@@ -136,7 +137,7 @@ for i = imdb.class_ids
   %X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
   %X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
   %fprintf('~~~~~~~~~~class %d: len of pos = %d, num of im = %d~~~~~~~~~~~~\n',i, size(X_pos{i},1), size(im_IX(i), 1));
-  X_pos{i} = get_feature(rcnn_model, imdb.name, im_IX{i}, eigen);
+  %X_pos{i} = get_feature(rcnn_model, imdb.name, im_IX{i}, eigen);
   X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean, rcnn_model);
   fprintf('size of positive = [%d, %d]\n', size(X_pos{i},1), size(X_pos{i},2));
   caches{i} = init_cache(X_pos{i}, keys_pos{i});
@@ -385,8 +386,9 @@ neg_inds = find(ismember(cache.keys_neg(:,1), fold) == false);
 
 
 % ------------------------------------------------------------------------
-function [keys, im_IX] = get_positive_pool5_features(imdb, opts)
+function [X_pos, keys, im_IX] = get_positive_pool5_features(rcnn_model, imdb, opts, eigen)
 % ------------------------------------------------------------------------
+X_pos = cell(max(imdb.class_ids), 1);
 keys = cell(max(imdb.class_ids), 1);
 im_IX = cell(max(imdb.class_ids), 1);
 
@@ -396,18 +398,22 @@ for i = 1:length(imdb.image_ids)
 
   d = rcnn_load_cached_pool5_features(opts.cache_name, ...
       imdb.name, imdb.image_ids{i}, false, {'class'});
+  key = struct('image_id', imdb.image_ids{i}, 'IX', []);
+  feat = get_feature(rcnn_model, imdb.name, key, eigen);
 
   for j = imdb.class_ids
     if isempty(keys{j})
+      X_pos{j} = single([]);
       keys{j} = [];
       im_IX{j} = [];
     end
     sel = find(d.class == j);
     if ~isempty(sel)
+      X_pos{j} = cat(1, X_pos{j}, feat(sel,:));
       keys{j} = cat(1, keys{j}, [i*ones(length(sel),1) sel]);
       im_IX{j} = cat(1, im_IX{j}, ... 
           struct('image_id', imdb.image_ids{i}, 'IX', sel)); 
-      end
+    end
   end
 end
 

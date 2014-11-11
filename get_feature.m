@@ -31,8 +31,10 @@ for i = 1:length(keys)
     norm_feat = feat_opt.d && (~feat_opt.w || norm_weight);
     %fprintf('norm_feat%d= %d\n', j, norm_feat);
     feat = get_feat_part(imdb_name, img_id, IX, feat_opt, norm_feat);
-    %fprintf('size feat_part(%d,%d)=[%d,%d]\n', i,j,size(feat,1), size(feat,2));
+  %  fprintf('size feat_part(%d,%d)=[%d,%d]\n', i,j,size(feat,1), size(feat,2));
     num_end = num_start+size(feat,1)-1;
+   % fprintf('num_start=%d, num_end=%d, dim_start=%d, dim_end=%d\n', num_start, ...
+        %num_end, dim_start, dim_end);
     feature(num_start:num_end, dim_start:dim_end) = feat;
     dim_start = dim_end+1;
   end
@@ -63,6 +65,7 @@ else
   feat = d.feat;
 end
 if norm_feat
+  fprintf('normalize\n');
   feat = normalize(feat);
 end
 

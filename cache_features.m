@@ -50,11 +50,20 @@ end
 %TODO
 %opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_entropy.prototxt'];
 %opts.net_def_file = ['./model-defs/pascal_batch' int2str(batch_size) '_output_softmax_back.prototxt'];
-opts.net_def_file = ['./model-defs/nizf_batch_1_' opts.backward_type '.prototxt'];
+%opts.net_def_file = ['./model-defs/nizf_batch_1_' opts.backward_type '.prototxt'];
+opts.net_def_file = ['./model-defs/grad_nizf_batch_1_' opts.backward_type '.prototxt'];
 if opts.opts.do_lda
-  trans = load_trans(feat_opts_to_string(feat_opt), opts.opts);  
-  proj_dim = cell_size_sum(trans, 2);
-  filter_start = get_filter_start(trans);
+  opts.opts.trans = load_trans(feat_opts_to_string(feat_opt), opts.opts);  
+  opts.opts.proj_dim = cell_size_sum(opts.opts.trans, 2);
+  opts.opts.filter_start = get_filter_start(opts.opts.trans);
+  opts.opts.IX = false(length(opts.opts.trans), 1);
+  proj_dim = size(opts.opts.trans{1},2); assert(proj_dim > 0);
+  for  k = 1:length(opts.opts.trans)
+    if isempty(opts.opts.trans{k})
+      opts.opts.IX((k-1)*proj_dim+1: k*proj_dim) = true;
+    end
+  end
+  opts.opts.IX = find(opts.opts.IX);
 end
 
 image_ids = imdb.image_ids;
@@ -114,14 +123,6 @@ for i = opts.start:opts.end
   th = tic;
   d.feat = weight_features(im, d.boxes, d.class, rcnn_model, opts.backward_type,...
       opts.opts);
-  if opts.opts.do_normalize
-    fprintf('\tnorm');
-    d.feat = normalize(d.feat);
-  end
-  if opts.opts.do_lda
-    fprintf('\tlda');
-    d.feat = lda(d.feat, trans, proj_dim, filter_start); 
-  end
   fprintf('\n [features: %.3fs]\n', toc(th));
 
   th = tic;

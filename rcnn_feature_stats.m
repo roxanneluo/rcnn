@@ -10,8 +10,10 @@ function [mean_norm, stdd] = rcnn_feature_stats(imdb, layer, rcnn_model, eigen)
 % ---------------------------------------------------------
 
 conf = rcnn_config('sub_dir', imdb.name);
-save_file = sprintf('%s/feature_stats_%s_layer_%d_%s.mat', ...
-                    conf.cache_dir, imdb.name, layer, rcnn_model.cache_name)
+%save_file = sprintf('%s/feature_stats_%s_layer_%d_%s.mat', ...
+%                    conf.cache_dir, imdb.name, layer, rcnn_model.cache_name)
+save_file = sprintf('%s/feature_stats_%s.mat', ...
+                    conf.cache_dir, imdb.name)
 
 try
   ld = load(save_file);

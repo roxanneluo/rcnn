@@ -12,7 +12,7 @@ function part_dim = get_feat_part_dim(feat_opt)
     part_dim = 384; 
   case 5
     if feat_opt.d
-      part_dim = 512*3*3*384;
+      part_dim = 9329;
     else 
       part_dim = 4608;
     end
