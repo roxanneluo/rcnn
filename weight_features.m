@@ -48,18 +48,27 @@ end
 for j = 1:length(batches)
   assert(size(batches{j},4)==1);
   caffe('forward_backward', {batches{j}; input2(j)});
-  res = caffe('get_weight', layer, feat_opt.d);
+  res = caffe('get_id_weight', layer, 2, feat_opt.d);
+  %res = caffe('get_weight', layer, feat_opt.d);
   blob = res.blobs{1};
 
+  blob = reshape(blob, [1, numel(blob)]);
+  blob(opts.IX) = []; 
+  %{
+  if opts.do_normalize
+    blob = normalize(blob);
+  end
+  if opts.do_lda
+    blob = lda(blob, opts.trans, opts.proj_dim, opts.filter_start); 
+  end
+%}
   if j == 1
     feat_dim = numel(blob);
     feat = zeros(size(boxes, 1), feat_dim, 'single');
     fprintf('[%d, %d]\n', size(boxes, 1), feat_dim);
   end
 
-  blob = reshape(blob, [feat_dim, 1]);
-
-  feat(j,:) = blob';
+  feat(j,:) = blob;
 end
 fprintf('layer_name: %s, max=%d, size[%d, %d]\n', res.layer_name, ...
     max(max(feat)), size(feat, 1), size(feat, 2));

@@ -1,4 +1,4 @@
-function draw_and_save_sort(data, nums, dir, title, commonIX)
+function draw_and_save_sort(data, dir, title, commonIX)
 if exist('IX', 'var')
   commonIX = get_base_IX(data);
 end

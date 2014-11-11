@@ -4,7 +4,7 @@ ip.addRequired('feat_name',   @isstr);
 ip.addParamValue('max_num_per_class', 5500,@isscalar);
 ip.addParamValue('do_normalize',      true,@isscalar);
 ip.addParamValue('do_lda',      true,@isscalar);
-ip.parse(feat_name, num_filter, varargin{:});
+ip.parse(feat_name, varargin{:});
 opts = ip.Results;
 
 lda_dir = 'lda/';

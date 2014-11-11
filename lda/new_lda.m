@@ -4,17 +4,21 @@ assert(dim ~= 0);
 feat_dim = size(data, 2);
 num_filter = feat_dim/dim;
 assert(num_filter == length(trans));
-proj_cell = cell(length(trans),1);
+num = size(data,1);
+proj = zeros(num, 19, length(trans));
+em = false(length(trans));
+tic
 parfor i=1:length(trans)
   if ~isempty(trans{i})
-    proj_cell{i} = data(:, (i-1)*dim+1:i*dim) * trans{i};   
+    proj(:,:,i) = data(:, (i-1)*dim+1:i*dim)*trans{i};
+  else 
+    em(i) = true;
   end
 end
-proj = zeros(size(data,1), proj_dim);
-for i = 1:num_filter
-  if ~isempty(trans{i})
-    proj(:, filter_start(i):filter_start(i)+size(trans{i},2)-1) = ...
-      proj_cell{i};
-    proj_cell{i} = [];
-  end
-end
+toc
+tic
+proj(:,:,em) = [];
+toc
+tic
+proj = reshape(proj, [num, numel(proj)/num]);
+toc
