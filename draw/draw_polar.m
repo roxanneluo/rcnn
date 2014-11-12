@@ -7,9 +7,9 @@ polar(angle(:,1), data_norm, '.');
 hold on;
 title(title_str);
 for i = 1:size(angle,2)
-  ph = polar(angle(:,i),data_norm, '.'); hold on;
+  ph = polar(angle(:,i), data_norm, '.'); hold on;
   set(ph, 'markeredgecolor', cmap(i,:));
 end
 saveas(gcf, [dir, title_str, '.jpg']);
 saveas(gcf, [dir, title_str, '.fig']);
-fclose(f);
+close(f);

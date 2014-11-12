@@ -1,9 +1,11 @@
-function [IX, colormap] = draw_class_sort(IX, baseIX)
+function [IX, colormap] = draw_class_sort(data, baseIX)
+[~, IX] = sort(data, 2);
 colorIX = get_colorIX(baseIX);
 
 dim = size(IX,2);
 colormap = jet(dim);
 colormap = colormap(colorIX,:);
+imshow(IX, colormap);
 
 %------------------------------------------------------
 function colorIX = get_colorIX(classIX)

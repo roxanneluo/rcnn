@@ -126,7 +126,7 @@ for i = opts.start:opts.end
   fprintf('\n [features: %.3fs]\n', toc(th));
 
   th = tic;
-  save(save_file, '-struct', 'd');
+  save(save_file, '-struct', 'd', '-v7.3');
   fprintf(' [saving:   %.3fs] [%d,%d]\n', toc(th), size(d.feat,1), size(d.feat,2));
 
   total_time = total_time + toc(tot_th);
