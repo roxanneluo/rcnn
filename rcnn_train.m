@@ -120,8 +120,11 @@ rcnn_model.training_opts = opts;
 % We cache only the pool5 features and convert them on-the-fly to
 % fc6 or fc7 as required
 rcnn_model.cache_name
-save_file = sprintf('./feat_cache/%s/%s/gt_pos_cache.mat', ...
-    rcnn_model.cache_name, imdb.name);
+%save_file = sprintf('./cachedir/%s/%s/gt_pos_cache.mat', ...
+ %   rcnn_model.cache_name, imdb.name);
+%{
+save_file = sprintf('%s/gt_pos_cache.mat', ...
+    rcnn_model.cache_name);
 try
   load(save_file);
   fprintf('Loaded saved positives from ground truth boxes\nfile_name=%s\n', save_file);
@@ -129,18 +132,17 @@ catch
   [X_pos, keys_pos, im_IX] = get_positive_pool5_features(rcnn_model, imdb, opts, eigen);
   save(save_file, 'X_pos', 'keys_pos', 'im_IX', '-v7.3');
 end
+  %}
+X_pos = load_positive_features(rcnn_model, imdb);
 % Init training caches
 caches = {};
 for i = imdb.class_ids
   fprintf('%14s has %6d positive instances\n', ...
-      imdb.classes{i}, size(keys_pos{i},1));
-  %X_pos{i} = rcnn_pool5_to_fcX(X_pos{i}, opts.layer, rcnn_model);
-  %X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean);
-  %fprintf('~~~~~~~~~~class %d: len of pos = %d, num of im = %d~~~~~~~~~~~~\n',i, size(X_pos{i},1), size(im_IX(i), 1));
-  %X_pos{i} = get_feature(rcnn_model, imdb.name, im_IX{i}, eigen);
+      imdb.classes{i}, size(X_pos{i},1));
   X_pos{i} = rcnn_scale_features(X_pos{i}, opts.feat_norm_mean, rcnn_model);
-  fprintf('size of positive = [%d, %d]\n', size(X_pos{i},1), size(X_pos{i},2));
-  caches{i} = init_cache(X_pos{i}, keys_pos{i});
+  fprintf('\t\tsize of positive = [%d, %d]\n', size(X_pos{i},1), size(X_pos{i},2));
+  %caches{i} = init_cache(X_pos{i}, keys_pos{i});
+  caches{i} = init_cache(X_pos{i}, []);
 end
 % ------------------------------------------------------------------------
 
@@ -247,6 +249,34 @@ else
   rcnn_k_fold_model = [];
 end
 % ------------------------------------------------------------------------
+
+
+% ------------------------------------------------------------------------
+function X_pos = load_positive_features(rcnn_model, imdb)
+% ------------------------------------------------------------------------
+feat_opts = rcnn_model.feat_opts;
+X_pos = cell(length(imdb.classes),1);
+for i = 1:length(imdb.classes)
+  X_pos{i} = single([]);
+end
+for i = 1:length(feat_opts)
+  pos_filename = ['feat_cache/' feat_opts_to_string(feat_opts(i)) '/' ...
+    imdb.name '/gt_pos.mat'];
+  if exist(pos_filename, 'file')
+    fprintf('Loading %s\n', pos_filename);
+    ld = load(pos_filename);
+    fprintf('Loaded %s\n', pos_filename);
+  else
+    ld = []; ld.X_pos = [];
+    [ld.X_pos, ~, ~] = get_positive_pool5_features(rcnn_model, imdb, feat_opts(i))
+    fprintf('Saving %s\n', pos_filename);
+    save(pos_filename, 'X_pos', '-v7.3');
+  end
+  for c = 1:length(imdb.classes)
+    X_pos{c} = cat(2, X_pos{c}, ld.X_pos{c});
+  end
+  clear ld;
+end
 
 
 % ------------------------------------------------------------------------
@@ -386,7 +416,7 @@ neg_inds = find(ismember(cache.keys_neg(:,1), fold) == false);
 
 
 % ------------------------------------------------------------------------
-function [X_pos, keys, im_IX] = get_positive_pool5_features(rcnn_model, imdb, opts, eigen)
+function [X_pos, keys, im_IX] = get_positive_pool5_features(rcnn_model, imdb, feat_opt)
 % ------------------------------------------------------------------------
 X_pos = cell(max(imdb.class_ids), 1);
 keys = cell(max(imdb.class_ids), 1);
@@ -396,10 +426,8 @@ for i = 1:length(imdb.image_ids)
   tic_toc_print('%s: pos features %d/%d\n', ...
                 procid(), i, length(imdb.image_ids));
 
-  d = rcnn_load_cached_pool5_features(opts.cache_name, ...
-      imdb.name, imdb.image_ids{i}, false, {'class'});
-  key = struct('image_id', imdb.image_ids{i}, 'IX', []);
-  feat = get_feature(rcnn_model, imdb.name, key, eigen);
+  d = rcnn_load_cached_pool5_features(feat_opts_to_string(feat_opt), ...
+      imdb.name, imdb.image_ids{i}, true, {'class'});
 
   for j = imdb.class_ids
     if isempty(keys{j})
@@ -409,7 +437,7 @@ for i = 1:length(imdb.image_ids)
     end
     sel = find(d.class == j);
     if ~isempty(sel)
-      X_pos{j} = cat(1, X_pos{j}, feat(sel,:));
+      X_pos{j} = cat(1, X_pos{j}, d.feat(sel,:));
       keys{j} = cat(1, keys{j}, [i*ones(length(sel),1) sel]);
       im_IX{j} = cat(1, im_IX{j}, ... 
           struct('image_id', imdb.image_ids{i}, 'IX', sel)); 
