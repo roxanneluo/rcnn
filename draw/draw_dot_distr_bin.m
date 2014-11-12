@@ -1,117 +1,145 @@
-function draw_dot_distr(feat_name, varargin)
-ip = inputParser;
-ip.addRequired('feat_name', @isstr);
-ip.addParamValue('npcls', 5500, @isscalar);
-ip.addParamValue('do_normalize', true, @isscalar);
-ip.addParamValue('num_sample', 200, @isscalar);
+function draw_dot_distr_bin(feat_name, varargin)
+ip = create_input_parser;
+ip.addParamValue('read_iter', 1024, @isscalar);
+ip.addParamValue('num_draw', 1024, @isscalar);
 ip.parse(feat_name, varargin{:});
 opts = ip.Results;
 
-data_dir = ['lda/data/' feat_name '/' int2str(opts.npcls) '/'];
+data_dir = ['lda/data/' feat_name '/' int2str(opts.max_num_per_class) '/'];
 dot_dir = ['draw-res/dot_distr/']; mkdirs({dot_dir});
 dot_dir = [dot_dir feat_name '/']; mkdirs({dot_dir});
-dot_dir = [dot_dir int2str(opts.npcls) opts_name(opts) '/']; mkdirs({dot_dir});
+dot_dir = [dot_dir int2str(opts.max_num_per_class) opts_name(opts) '_with_norm_mean/']; mkdirs({dot_dir});
 sort_dir = ['draw-res/sort/']; mkdirs({sort_dir});
 sort_dir = [sort_dir feat_name '/']; mkdirs({sort_dir});
-sort_dir = [sort_dir int2str(opts.npcls) opts_name(opts) '/']; mkdirs({sort_dir});
+sort_dir = [sort_dir int2str(opts.max_num_per_class) opts_name(opts) '/']; mkdirs({sort_dir});
 
 num_class = 20;
-load_order = [1:14, 16:20, 15];
+load_order = [1:6, 8:20, 7];
 feat_dim = 512*3*3*384;
 mean_file = [dot_dir 'means' opts_name(opts) '.mat'];
+nums = load('num_pos.txt');
+disp(nums');
 if exist(mean_file, 'file')
   fprintf('Loading %s\n', mean_file);
   ld = load(mean_file);
-  nums = ld.nums;
-  means = ld.means; clear ld;
-  means = gpuArray(means); nums = gpuArray(nums);
-  data = read2gpu(get_data_filename(data_dir, load_order(end), opts.do_normalize), feat_dim, opts);
+  means = ld.means;
+  clear ld;
 else
-  gpu_means = gpuArray(zeros(feat_dim, num_class));
-  gpu_means = gpuArray(zeros(feat_dim, 20));
-  nums = zeros(num_class,1);
-  nums = zeros(20,1);
+  means = single(zeros(feat_dim, num_class));
   for i = 1:num_class
-    clear data;
-    filename = get_data_filename(data_dir, load_order(i), opts.do_normalize);
-    fprintf('loading %s.', filename);
-    data = read2gpu(filename, feat_dim, opts);
-    gpu_means(:, load_order(i)) = mean(data, 1)';
-    nums(i) = size(data,1);
+    id = load_order(i);
+    filename = [dot_dir 'm_' int2str(id) opts_name(opts) '.mat'];
+    if exist(filename, 'file')
+      ld = load(filename);
+      means(:,id) = ld.m; clear ld;
+    else
+      m = compute_mean(id, data_dir, nums(id), feat_dim, opts);
+      save(filename, 'm', '-v7.3');
+      means(:,id) = m; clear m;
+    end
   end
-  means = gather(gpu_means);
-  save(mean_file, 'means', 'nums', '-v7.3');
-  clear means;
-  means = gpu_means;
+  save(mean_file, 'means', '-v7.3');
 end
-disp(means(1:5,6))
-disp(means(1:5,19))
-nums = gpuArray(nums);
-global_IX = gather(get_base_IX((sum(means*diag(nums),2)/sum(nums))'));
-mean_IX = gather(sort(means, 2))'; 
 mean_norm = sqrt(sum(means.*means));
+
 
 diary_file = [dot_dir 'mean_std.txt'];
 diary(diary_file);
-draw_order = [15, 20:-1:16, 14:-1:1, -1];
+draw_order = [7, 20:-1:8, 6:-1:1];
 class_names = {'aero' 'bike' 'bird' 'boat' 'bottle' 'bus' 'car' 'cat' 'chair' ... 
     'cow' 'table' 'dog' 'horse' 'mbike' 'person' 'plant' 'sheep' 'sofa' ... 
     'train' 'tv' 'background'};
 for i = 1:num_class
-  %try
-    id = draw_order(i);
-    dots = data*means;
-    fprintf('drawing sort %d(class %d)\n', i, id);
-    %draw_and_save_sort(gather(sample), sort_dir, ['class-sort-' int2str(id) class_names{id}], mean_IX(id,:));  
-    %draw_and_save_sort(gather(sample), sort_dir, ['global-sort-' int2str(id) class_names{id}], globalIX);  
-    clear sample;
-    if ~opts.do_normalize
-      data_norm = sqrt(sum(data.*data,2));
-      clear data;
-      norm_prod = data_norm*mean_norm;
-      norm_prod(norm_prod < eps) = 1;
-      angle = acos(dots./norm_prod);
-      fprintf('%d:dots mean\t', id); disp(gather(mean(dots)));
-      fprintf('%d:dots std\t', id); disp(std(dots));
-      title = sprintf('dot_distr_%d%s', id, opts_name(opts));
-      draw_hist_surf(gather(dots), 100, dot_dir, title);
-    else
-      clear data;
-      angle = acos(dots);
-      data_norm = ones(size(dots,1),1);
-    end
-    angle = gather(angle); data_norm = gather(data_norm);
-    pos_num = sum(dots>0); neg_num = sum(dots<0); ortho_num = sum(dots == 0); num = size(dots,1);
-    fprintf('%d:sgn pos_ratio\t', id); disp(pos_num/num);
-    fprintf('%d:sgn neg_ratio\t', id); disp(neg_num/num);
-    fprintf('%d:sgn rtho_ratio\t', id); disp(ortho_num/num);
-    fprintf('%d:mean angle\t', id); disp(mean(angle)/pi*180);
-    fprintf('%d:std  angle\t', id); disp(std(angle)/pi*180);
-    title = sprintf('angle_polar_%d_%s', id, opts_name(opts));
-    draw_polar(id, angle, data_norm, dot_dir, title);
-    title = sprintf('angle_distr_%d_%s', id, opts_name(opts));
-    draw_hist_surf(gather(dots), 100, dot_dir, title);
-    
-    if draw_order(i+1) > 0
-      filename = get_data_filename(data_dir, draw_order(i+1), opts.do_normalize);
-      data = read2gpu(filename, feat_dim, opts);
-    end
-%{
-  catch err
-    fprintf('%d: %s\n', id, err.identifier);
-    fprintf('%d: %s\n', id, err.message);
+  id = draw_order(i);
+  dot_filename = [dot_dir 'dots_data_norm_' int2str(id) '.mat'];
+  if exist(dot_filename, 'file')
+    fprintf('loading %s\n', dot_filename);
+    ld = load(dot_filename); dots = ld.dots; data_norm = ld.data_norm;
+    clear ld;
+  else
+    [dots, data_norm] = compute_dots(id, data_dir, min(nums(i), opts.num_draw),...
+                                    means, feat_dim, opts);
+    save(dot_filename, 'dots', 'data_norm', '-v7.3');
   end
-%}
+  if ~opts.do_normalize
+    disp_mean_std(id, dots, 'dots');
+    title = sprintf('dot_distr_%d%s', id, opts_name(opts));
+    draw_hist_surf(dots, 100, dot_dir, title);
+    
+    data_cos = get_cos(dots, data_norm, mean_norm);
+  else 
+    data_cos = dots;
+  end
+  clear dots;
+  disp_sgn(id, data_cos);
+  angle = acos(data_cos); clear data_cos;
+  disp_mean_std(id, angle/pi*180, 'angle');
+  title = sprintf('angle_polar_%d%s', id, opts_name(opts));
+  draw_polar(id, angle, data_norm, dot_dir, title);
+  title = sprintf('angle_distr_%d%s', id, opts_name(opts));
+  draw_hist_surf(angle/pi*180, 100, dot_dir, title);
 end
 
-fprintf('done\n');
 
-function data = read2gpu(filename, feat_dim, opts)
-fprintf('loading %s.', filename);
-data = my_read(filename, [inf, feat_dim]);
-if size(data, 1) > opts.num_sample
-  IX = randperm(size(data,1), opts.num_sample);
-  data = data(IX,:);
+%------------------------------------------------------------------------------
+function [dots, data_norm] = compute_dots(class_id, data_dir, num, ...
+                                          means, feat_dim, opts)
+%------------------------------------------------------------------------------
+data_filename = get_data_filename(data_dir, class_id, opts.do_normalize);
+batch_size = opts.read_iter; num_batch = ceil(num/batch_size); 
+num_left = num;
+dots = []; data_norm = [];
+f = fopen(data_filename, 'r');
+for i = 1:num_batch
+  data = fread(f, [feat_dim, min(num_left, batch_size)], 'single')';
+  num_left = num_left - size(data,1);
+  fprintf('%d: read %s [%d, %d], num_left=%d\n', class_id,  data_filename, ...
+          size(data, 1), size(data,2), num_left);
+  dots = cat(1, dots, data * means);
+  data_norm = cat(1, data_norm, sqrt(sum(data.*data, 2)));
+  clear data;
 end
-data = gpuArray(data);
-fprintf('loaded %s.\n', filename);
+fclose(f);
+
+%------------------------------------------------------------------------------
+function disp_mean_std(id, data, name)
+%------------------------------------------------------------------------------
+fprintf('%d: %s mean\t', id, name); disp(mean(data));
+fprintf('%d: %s std\t', id, name); disp(std(data));
+
+%------------------------------------------------------------------------------
+function data_cos = get_cos(dots, data_norm, mean_norm) 
+%------------------------------------------------------------------------------
+norm_prod = data_norm*mean_norm;
+norm_prod(norm_prod < eps) = 1;
+data_cos = dots./norm_prod;
+
+
+%------------------------------------------------------------------------------
+function disp_sgn(id, data_cos)
+%------------------------------------------------------------------------------
+pos_num = sum(data_cos>eps); neg_num = sum(data_cos<-eps); 
+ortho_num = sum(abs(data_cos) <= eps); num = size(data_cos,1);
+fprintf('%d:sgn pos_ratio\t', id); disp(pos_num/num);
+fprintf('%d:sgn neg_ratio\t', id); disp(neg_num/num);
+fprintf('%d:sgn rtho_ratio\t', id); disp(ortho_num/num);
+
+
+%------------------------------------------------------------------------------
+function m = compute_mean(class_id, data_dir, num, feat_dim, opts)
+%------------------------------------------------------------------------------
+data_filename = get_data_filename(data_dir, class_id, opts.do_normalize);
+num_batch = ceil(num/opts.read_iter); batch_size = opts.read_iter;
+m = single(zeros(feat_dim, 1));
+cnt = 0;
+f = fopen(data_filename, 'r');
+for i = 1:num_batch
+  data = fread(f, [feat_dim, batch_size], 'single');
+  cnt = cnt + size(data,2);
+  fprintf('read %s [%d, %d], cnt=%d\n', data_filename, ...
+    size(data,1), size(data,2), cnt);
+  m = m+sum(data, 2); clear data;
+end
+fclose(f);
+assert(cnt == num);
+m = m/num;
