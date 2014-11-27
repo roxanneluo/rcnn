@@ -24,7 +24,6 @@ else
   rcnn_model = rcnn_model_or_file;
 end
 
-%{
 rcnn_model.cnn.init_key = ...
     caffe('init', rcnn_model.cnn.definition_file, rcnn_model.cnn.binary_file);
 if exist('use_gpu', 'var') && ~use_gpu
@@ -34,4 +33,3 @@ else
 end
 caffe('set_phase_train');
 %rcnn_model.cnn.layers = caffe('get_weights');
-%}

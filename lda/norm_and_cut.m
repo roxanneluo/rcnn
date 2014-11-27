@@ -2,7 +2,7 @@ function nums = norm_and_cut(data_dir, num_class, filter_dir, num_filter, ...
     do_normalize, feat_dim, opts)
 filter_files = get_file_handles(filter_dir, num_filter);
 dim = feat_dim / num_filter;
-for i = 1:num_class
+for i = 2:num_class
   data_filename = get_data_filename(data_dir, i, false);
   data_file = fopen(data_filename, 'r');
   norm_data_filename = get_data_filename(data_dir, i, true);

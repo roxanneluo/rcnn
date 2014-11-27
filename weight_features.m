@@ -48,12 +48,12 @@ end
 for j = 1:length(batches)
   assert(size(batches{j},4)==1);
   caffe('forward_backward', {batches{j}; input2(j)});
-  res = caffe('get_id_weight', layer, 2, feat_opt.d);
-  %res = caffe('get_weight', layer, feat_opt.d);
+  %res = caffe('get_id_weight', layer, 2, feat_opt.d);
+  res = caffe('get_weight', layer, feat_opt.d);
   blob = res.blobs{1};
 
   blob = reshape(blob, [1, numel(blob)]);
-  blob(opts.IX) = []; 
+  %blob(opts.IX) = []; 
   %{
   if opts.do_normalize
     blob = normalize(blob);
@@ -70,8 +70,8 @@ for j = 1:length(batches)
 
   feat(j,:) = blob;
 end
-fprintf('layer_name: %s, max=%d, size[%d, %d]\n', res.layer_name, ...
-    max(max(feat)), size(feat, 1), size(feat, 2));
+%fprintf('layer_name: %s, max=%d, size[%d, %d]\n', res.layer_name, ...
+%    max(max(feat)), size(feat, 1), size(feat, 2));
 
 % ---------------------------------------------------------
 function layer = get_layer(feat_opt)

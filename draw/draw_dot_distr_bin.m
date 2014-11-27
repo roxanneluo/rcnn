@@ -1,8 +1,10 @@
-function draw_dot_distr_bin(feat_name, varargin)
+function draw_dot_distr_bin(feat_name, backward_type, varargin)
 ip = create_input_parser;
+ip.addParamValue('backward_type', 'sb', @isstr);
+ip.addParamValue('imdb_name', 'test', @isstr);
 ip.addParamValue('read_iter', 1024, @isscalar);
 ip.addParamValue('num_draw', 1024, @isscalar);
-ip.parse(feat_name, varargin{:});
+ip.parse(feat_name, backward_type, varargin{:});
 opts = ip.Results;
 
 data_dir = ['lda/data/' feat_name '/' int2str(opts.max_num_per_class) '/'];
@@ -16,8 +18,9 @@ sort_dir = [sort_dir int2str(opts.max_num_per_class) opts_name(opts) '/']; mkdir
 num_class = 20;
 load_order = [1:6, 8:20, 7];
 feat_dim = 512*3*3*384;
-mean_file = [dot_dir 'means' opts_name(opts) '.mat'];
-nums = load('num_pos.txt');
+%mean_file = [dot_dir 'means' opts_name(opts) '.mat'];
+mean_file = ['draw-res/dot_distr/l5_d_w_l2_' opts.backward_type '/5500_norm/means_norm.mat']
+nums = load(['num_pos_' opts.imdb_name '.txt']);
 disp(nums');
 if exist(mean_file, 'file')
   fprintf('Loading %s\n', mean_file);
@@ -57,7 +60,7 @@ for i = 1:num_class
     ld = load(dot_filename); dots = ld.dots; data_norm = ld.data_norm;
     clear ld;
   else
-    [dots, data_norm] = compute_dots(id, data_dir, min(nums(i), opts.num_draw),...
+    [dots, data_norm] = compute_dots(id, data_dir, min(nums(id), opts.num_draw),...
                                     means, feat_dim, opts);
     save(dot_filename, 'dots', 'data_norm', '-v7.3');
   end
@@ -71,7 +74,11 @@ for i = 1:num_class
     data_cos = dots;
   end
   clear dots;
+  disp_mean_std(id, data_cos, 'cos');
+  title = sprintf('cos_distr_%d%s', id, opts_name(opts));
+  draw_hist_surf(data_cos, 100, dot_dir, title);
   disp_sgn(id, data_cos);
+
   angle = acos(data_cos); clear data_cos;
   disp_mean_std(id, angle/pi*180, 'angle');
   title = sprintf('angle_polar_%d%s', id, opts_name(opts));

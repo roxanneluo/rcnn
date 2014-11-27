@@ -3,4 +3,4 @@ ip = inputParser;
 ip.addRequired('feat_name',   @isstr);
 ip.addParamValue('max_num_per_class', 5500,@isscalar);
 ip.addParamValue('do_normalize',      true,@isscalar);
-ip.addParamValue('do_lda',      true,@isscalar);
+ip.addParamValue('do_lda',      false,@isscalar);

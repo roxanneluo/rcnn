@@ -1,15 +1,15 @@
-function compute_all_trans_my_write(feat_opt, num_filter, class_group, varargin)
+function compute_all_trans_my_write(feat_opt, num_filter, varargin)
 ip = inputParser;
 ip.addRequired('feat_opt',   @isstruct);
 ip.addRequired('num_filter',  @isscalar);
-ip.addRequired('class_group', @isscalar);
+ip.addParamValue('class_group',       20,  @isscalar);
 ip.addParamValue('max_num_per_class', 5500,@isscalar);
 ip.addParamValue('do_normalize',      true,@isscalar);
 ip.addParamValue('dump_interval',     500, @isscalar);
 ip.addParamValue('im_start',          1,   @isscalar);
 ip.addParamValue('neg_per_im',        0,   @isscalar);
-ip.addParamValue('backward_type',     'sl',   @isstr);
-ip.parse(feat_opt, num_filter, class_group, varargin{:});
+ip.addParamValue('backward_type',     'sb',   @isstr);
+ip.parse(feat_opt, num_filter, varargin{:});
 opts = ip.Results;
 opts.do_lda = true;
  
@@ -25,13 +25,14 @@ data_dir = [data_dir int2str(opts.max_num_per_class) '/'];
 trans_dir  = [trans_dir int2str(opts.max_num_per_class) opts_name(opts) '/'];
 filter_dir = [filter_dir int2str(opts.max_num_per_class) '/'];
 mkdirs({data_dir, trans_dir, filter_dir});
+disp(data_dir)
 
 fprintf('Dumping Pos\n');
 num_cls = 20;
-num_cls_batch = ceil(num_cls/class_group);
+num_cls_batch = ceil(num_cls/opts.class_group);
 for i = 1:num_cls_batch
-  cls_start = (i-1)*class_group+1;
-  cls_end = min(num_cls, cls_start + class_group - 1);
+  cls_start = (i-1)*opts.class_group+1;
+  cls_end = min(num_cls, cls_start + opts.class_group - 1);
   feat_dim = dump_pos_online(feat_opt, cls_start:cls_end, data_dir, opts);
   fprintf('Pos for classes %d:%d dumped\n', cls_start, cls_end);
 end
@@ -47,7 +48,7 @@ trans_err_file = [trans_dir 'trans_err.log'];
 trans_err_f = -1;
 err_messages = cell(num_filter, 1);
 label = get_label(nums);
-parfor f = 1:num_filter
+for f = 1:num_filter
   err_messages{f} = compute_and_dump_trans(f, filter_dir, label, trans_dir, ...
       dim, num_cls, opts);
 end
@@ -62,7 +63,6 @@ end
 if trans_err_f ~= -1
   fclose(trans_err_f);
 end
-
 %------------------------------------------------------------------------------
 function err_msg = compute_and_dump_trans(f, filter_dir, label, trans_dir, ...
     dim, num_class, opts)

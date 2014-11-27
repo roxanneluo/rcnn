@@ -1,4 +1,12 @@
 function proj = lda(data, trans, proj_dim, filter_start)
+if ~exist('proj_dim', 'var')
+  proj_dim = cell_size_sum(trans, 2); 
+end
+if ~exist('filter_start', 'var')
+  filter_start = get_filter_start(trans);
+end
+
+
 dim = size(trans{1},1);
 assert(dim ~= 0);
 feat_dim = size(data, 2);
